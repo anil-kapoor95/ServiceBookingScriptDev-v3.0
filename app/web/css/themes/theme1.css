@@ -1,0 +1,54 @@
+/* ==========================================================================
+	#General
+========================================================================== */
+#pjWrapper * { font-family: 'Open Sans', sans-serif; }
+#pjWrapper .fa { font-family: 'FontAwesome'; }
+#pjWrapper .glyphicon { font-family: 'Glyphicons Halflings'; }
+
+#pjWrapper a { color: #378edb; }
+
+#pjWrapper .btn-primary { background-color: #378edb; border-color: #3381c6; }
+#pjWrapper .btn-primary:hover { background-color: #3381c6; }
+
+#pjWrapper .pjSbs-btn-back{ background-color: #378edb; border-color: #3381c6; color: #fff !important; }
+#pjWrapper .pjSbs-btn-back:hover { background-color: #3381c6; color: #fff !important;}
+
+#pjWrapper .pjSbs-available-times table td.active, 
+#pjWrapper .pjSbs-available-times table td:hover:not(.pjSbs-meridium),
+#pjWrapper .pjSbs-date.active .pjSbs-date-number { background-color: #378edb; }
+
+#pjWrapper .pjSbs-available-times table td.active, 
+#pjWrapper .pjSbs-available-times table td:hover:not(.pjSbs-meridium),
+#pjWrapper .pjSbs-date.active,
+#pjWrapper .pjSbs-service.active:hover, 
+#pjWrapper .pjSbs-service.active,
+#pjWrapper .pjSbs-service .pjSbs-ico-check { border-color: #378edb; }
+
+#pjWrapper .pjSbs-calendar-pick-holder .pjSbs-owl-nav div:after,
+#pjWrapper .pjSbs-calendar-pick .owl-nav div:after,
+#pjWrapper .pjSbs-btn-back,
+#pjWrapper .pjSbs-service-utilities i,
+#pjWrapper .pjSbs-service.active .pjSbs-ico-check:after { color: #378edb; }  
+
+#pjWrapper .pjSbs-available-times table th,
+#pjWrapper .pjSbs-services-head,
+#pjWrapper .pjSbs-services-footer { background-color: #56ae34; }
+
+#pjWrapper .pjSbs-services-title,
+#pjWrapper .pjSbs-services-footer-title { color: #fff; }
+
+#pjWrapper .pjSbs-service-utilities em { color: #56ae34; }
+
+#pjWrapper .pjSbs-available-times table td.pjSbs-disabled:hover,
+#pjWrapper .pjSbs-available-times table td.pjSbs-disabled { background-color: #f7f7f7; border-color: #f7f7f7; color: #e5e5e5; cursor: auto; }
+
+#pjWrapper .pjSbs-time-grid .pjSbs-heading{ background-color: #56ae34; }
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.active{background-color: #378edb; border-color: #378edb;}
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.pjSbs-disabled,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.pjSbs-disabled:hover{background-color: #f7f7f7; border-color: #f7f7f7; color: #e5e5e5; cursor: auto;}
+
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.active{background-color: #378edb; border-color: #378edb;}
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.pjSbs-disabled,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.pjSbs-disabled:hover{background-color: #f7f7f7; border-color: #f7f7f7; color: #e5e5e5; cursor: auto;}

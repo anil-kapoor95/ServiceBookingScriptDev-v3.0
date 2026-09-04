@@ -1,0 +1,84 @@
+/* ==========================================================================
+	#General
+========================================================================== */
+#pjWrapper * { font-family: 'Roboto Condensed', sans-serif; }
+#pjWrapper .fa { font-family: 'FontAwesome'; }
+#pjWrapper .glyphicon { font-family: 'Glyphicons Halflings'; }
+
+#pjWrapper { background-color: #2b1b02; }
+
+#pjWrapper a { color: #f65a1f; }
+
+#pjWrapper .btn-primary { background-color: #f65a1f; border-color: #d44e1b; color: #fff; }
+#pjWrapper .btn-primary:hover { background-color: #d44e1b; }
+
+#pjWrapper .pjSbs-btn-back{ background-color: #f65a1f; border-color: #d44e1b; color: #fff !important; }
+#pjWrapper .pjSbs-btn-back:hover { background-color: #d44e1b; color: #fff !important;}
+
+#pjWrapper .pjSbs-available-times table td:not(.pjSbs-meridium) { background-color: #ffdba4; border-color: #e8c183; color: #2b1b02; }
+
+#pjWrapper .pjSbs-available-times table td.active, 
+#pjWrapper .pjSbs-available-times table td:hover:not(.pjSbs-meridium),
+#pjWrapper .pjSbs-services-head { background-color: #f65a1f; border-color: #f65a1f; }
+
+#pjWrapper .pjSbs-services { border-color: #f65a1f; } 
+
+#pjWrapper .pjSbs-available-times table td.active,
+#pjWrapper .pjSbs-services-title { color: #fff; }
+
+#pjWrapper .pjSbs-services-form,
+#pjWrapper .pjSbs-service,
+#pjWrapper .pjSbs-services-body { background-color: #fff6dd; border-color: #fff6dd; }
+
+#pjWrapper .pjSbs-services-footer { background-color: #ffd35c; }
+
+#pjWrapper .pjSbs-not-available p,
+#pjWrapper .pjSbs-services-form-title,
+#pjWrapper .pjSbs-services-form label,
+#pjWrapper .pjSbs-service-title,
+#pjWrapper .pjSbs-service-utilities strong,
+#pjWrapper .pjSbs-service-utilities,
+#pjWrapper .pjSbs-available-times table .pjSbs-meridium,
+#pjWrapper .pjSbs-available-times-title,
+#pjWrapper .pjSbs-services-footer p,
+#pjWrapper .pjSbs-services-footer-title { color: #2b1b02; }
+
+#pjWrapper .pjSbs-service.active:hover, 
+#pjWrapper .pjSbs-service.active { border-color: #efdec3; background-color: #efdec3; }
+
+#pjWrapper .pjSbs-service:hover { background-color: #efdec3; border-color: #efdec3; }
+
+#pjWrapper .pjSbs-service .pjSbs-ico-check { border-color: #f65a1f; }
+#pjWrapper .pjSbs-service.active .pjSbs-ico-check:after { color: #f65a1f; }
+
+#pjWrapper .pjSbs-btn-back { background-color: #2b1b02; border-color: #2b1b02; color: #ffd35c;}
+
+#pjWrapper .pjSbs-date { border-color: #fff6dd; color: #2b1b02; }  
+
+#pjWrapper .pjSbs-calendar-pick-holder .pjSbs-owl-nav div{background-color: #2b1b02; border-color: #2b1b02;}
+#pjWrapper .pjSbs-calendar-pick-holder .pjSbs-owl-nav div:after{color: #ffd35c; }
+#pjWrapper .pjSbs-calendar-pick .owl-nav div { background-color: #2b1b02; border-color: #2b1b02; }
+#pjWrapper .pjSbs-calendar-pick .owl-nav div:after { color: #ffd35c; }
+
+#pjWrapper .pjSbs-date.active { border-color: #f65a1f; }
+#pjWrapper .pjSbs-date.active .pjSbs-date-number { background-color: #f65a1f; }
+
+#pjWrapper .pjSbs-available-times table th { background-color: #2b1b02; }
+
+#pjWrapper .form-control { border-color: #2b1b02; } 
+
+#pjWrapper .pjSbs-services-prices-row { border-color: #1a1002; }
+#pjWrapper .pjSbs-services-prices-row .pjSbs-price { color: #f65a1f; }
+
+#pjWrapper .pjSbs-available-times table td.pjSbs-disabled:hover,
+#pjWrapper .pjSbs-available-times table td.pjSbs-disabled { background-color: #f7f7f7; border-color: #f7f7f7; color: #e5e5e5; cursor: auto; }
+
+#pjWrapper .pjSbs-time-grid .pjSbs-heading{ background-color: #2b1b02; }
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.active,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.active{background-color: #f65a1f; border-color: #f65a1f; color: #fff;}
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.pjSbs-disabled,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.pjSbs-disabled:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.pjSbs-disabled,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.pjSbs-disabled:hover{background-color: #f7f7f7; border-color: #f7f7f7; color: #e5e5e5; cursor: auto;}
