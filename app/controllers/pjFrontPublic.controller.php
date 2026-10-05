@@ -101,6 +101,12 @@ class pjFrontPublic extends pjFront
 			{
 				if(isset($_POST['sbs_checkout']))
 				{
+					$_POST = pjAppController::trimDeep($_POST);
+					if (!pjAppController::validateClientDetails($_POST, $this->option_arr))
+					{
+						pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 101, 'text' => ''));
+						exit;
+					}
 					$_SESSION[$this->defaultForm] = $_POST;
 				
 					pjAppController::jsonResponse(array('status' => 'OK', 'code' => 200));

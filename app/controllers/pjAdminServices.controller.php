@@ -6,6 +6,33 @@ if (!defined("ROOT_PATH"))
 }
 class pjAdminServices extends pjAdmin
 {
+	/**
+	 * Server-side guard for the add/edit service forms (the browser validates too): the default-language
+	 * title must not be empty/spaces-only, and price and duration must be greater than 0.
+	 */
+	private function isValidServicePost()
+	{
+		$default_locale = pjLocaleModel::factory()->where('is_default', 1)->limit(1)->findAll()->getData();
+		$default_id = !empty($default_locale) ? (int) $default_locale[0]['id'] : 0;
+		if (isset($_POST['i18n']) && is_array($_POST['i18n']) && $default_id > 0)
+		{
+			if (!isset($_POST['i18n'][$default_id]['title']) || $_POST['i18n'][$default_id]['title'] === '')
+			{
+				return false;
+			}
+		}
+		$price = isset($_POST['price']) ? str_replace(',', '', $_POST['price']) : '';
+		if (!is_numeric($price) || (float) $price <= 0)
+		{
+			return false;
+		}
+		if (!isset($_POST['duration']) || !ctype_digit((string) $_POST['duration']) || (int) $_POST['duration'] <= 0)
+		{
+			return false;
+		}
+		return true;
+	}
+
 	public function pjActionCreate()
 	{
 		$this->checkLogin();
@@ -14,6 +41,11 @@ class pjAdminServices extends pjAdmin
 		{
 			if (isset($_POST['service_create']))
 			{
+				$_POST = pjAppController::trimDeep($_POST);
+				if (!$this->isValidServicePost())
+				{
+					pjUtil::redirect($_SERVER['PHP_SELF'] . "?controller=pjAdminServices&action=pjActionCreate");
+				}
 				$pjServiceModel = pjServiceModel::factory();
 				
 				$id = $pjServiceModel->setAttributes($_POST)->insert()->getInsertId();
@@ -184,6 +216,11 @@ class pjAdminServices extends pjAdmin
 		{
 			if (isset($_POST['service_update']))
 			{
+				$_POST = pjAppController::trimDeep($_POST);
+				if (!$this->isValidServicePost())
+				{
+					pjUtil::redirect($_SERVER['PHP_SELF'] . "?controller=pjAdminServices&action=pjActionUpdate&id=" . (int) @$_POST['id']);
+				}
 				$pjServiceModel = pjServiceModel::factory();
 				
 				$err = 'AS01';

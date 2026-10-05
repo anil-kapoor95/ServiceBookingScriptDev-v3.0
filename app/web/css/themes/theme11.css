@@ -1,0 +1,262 @@
+/* ==========================================================================
+	Theme 11 - Sunset coral booking wizard
+========================================================================== */
+
+/* ---- Palette ----
+   header / accent coral : #e8836b
+   header darker hover  : #d4705a
+   buttons              : #c94e33
+   card background      : #f4dccf
+   page background      : #fbf0ea
+   ink / dark text      : #4a2a22
+   muted text           : #7b5b51
+   success peach         : #fad7c1
+--------------------------------------------------------------------------- */
+
+#pjWrapper a { color: #ae3c22; }
+
+#pjWrapper { background-color: #fbf0ea; }
+
+#pjWrapper .pjSbs-services { background-color: #fbf0ea; border: none; border-radius: 16px; overflow: visible; box-shadow: 0 10px 30px rgba(74, 42, 34, 0.08); }
+
+#pjWrapper .pjSbs-services-head { background-color: transparent; border-bottom: none; padding: 28px 20px 18px; }
+
+#pjWrapper .pjSbs-services-title { color: #4a2a22; font-weight: 600; font-size: 26px; }
+
+#pjWrapper .pjSbs-services-body { background-color: transparent; max-height: none; }
+
+#pjWrapper .btn-primary,
+#pjWrapper .pjSbsBtnStartOver.btn-default { background-color: #c94e33; border-color: #c94e33; border-radius: 26px; font-weight: 600; box-shadow: 0 6px 16px rgba(201, 78, 51, 0.4); }
+#pjWrapper .btn-primary:hover,
+#pjWrapper .pjSbsBtnStartOver.btn-default:hover { background-color: #b73f24; border-color: #b73f24; }
+
+#pjWrapper .pjSbs-btn-back { background-color: #fff; border-color: #e3ded3; color: #ae3c22; box-shadow: 0 2px 8px rgba(74, 42, 34, 0.08); }
+#pjWrapper .pjSbs-btn-back:hover { background-color: #fff; opacity: 1; color: #4a2a22; }
+
+/* ---- Step tracker ---- */
+#pjWrapper .pjSbs11-steps { display: flex; padding: 0 20px 22px; gap: 10px; }
+#pjWrapper .pjSbs11-step { flex: 1 1 0; text-align: center; }
+#pjWrapper .pjSbs11-step-bar { display: block; height: 6px; border-radius: 4px; background-color: #f0d3c6; margin-bottom: 8px; }
+#pjWrapper .pjSbs11-step:first-child .pjSbs11-step-bar { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+#pjWrapper .pjSbs11-step:last-child .pjSbs11-step-bar { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+#pjWrapper .pjSbs11-step-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: #a7aba5; font-weight: 600; }
+#pjWrapper .pjSbs11-step-current .pjSbs11-step-bar,
+#pjWrapper .pjSbs11-step-done .pjSbs11-step-bar { background-color: #e8836b; }
+#pjWrapper .pjSbs11-step-current .pjSbs11-step-label,
+#pjWrapper .pjSbs11-step-done .pjSbs11-step-label { color: #4a2a22; }
+
+/* Step icons: a universal line icon in a round chip above each label.
+   upcoming = white chip / muted icon, current = filled accent chip with a
+   soft glow, done = accent icon with a small check badge. */
+#pjWrapper .pjSbs11-step-bar { margin-bottom: 10px; }
+#pjWrapper .pjSbs11-step-icon {
+	position: relative; display: inline-flex; align-items: center; justify-content: center;
+	width: 38px; height: 38px; margin-bottom: 6px; border-radius: 50%;
+	background-color: #fff; color: #a7aba5; box-shadow: 0 2px 8px rgba(74, 42, 34, 0.08);
+	transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+#pjWrapper .pjSbs11-step-icon svg { display: block; }
+#pjWrapper .pjSbs11-step-current .pjSbs11-step-icon { background-color: #e8836b; color: #fff; box-shadow: 0 6px 14px rgba(232, 131, 107, 0.45); }
+#pjWrapper .pjSbs11-step-done .pjSbs11-step-icon { color: #e8836b; }
+#pjWrapper .pjSbs11-step-done .pjSbs11-step-icon:after {
+	content: ""; position: absolute; right: -3px; bottom: -3px; width: 15px; height: 15px; border-radius: 50%;
+	background-color: #e8836b; border: 2px solid #fbf0ea; box-sizing: border-box;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 13 10 18 19 7'/%3E%3C/svg%3E");
+	background-repeat: no-repeat; background-position: center; background-size: 8px 8px;
+}
+
+/* ---- Service list cards ---- */
+#pjWrapper .pjSbs-service { background-color: #f4dccf; border: 1px solid #f4dccf; border-radius: 14px; margin: 0 20px 10px; padding: 16px 16px 16px 78px; }
+#pjWrapper .pjSbs-service + .pjSbs-service { margin-top: 0; }
+/* keep the last card clear of the fixed "N services selected" bar (theme11's margin shorthand above overrides the base rule) */
+#pjWrapper .pjSbs-service.pjSbs-service-last-child { margin-bottom: 118px; }
+@media (max-width: 479px) { #pjWrapper .pjSbs-service.pjSbs-service-last-child { margin-bottom: 200px; } }
+#pjWrapper .pjSbs-service:hover { border-color: #c8c3ba; background-color: #d4d0c9; }
+#pjWrapper .pjSbs-service.active:hover,
+#pjWrapper .pjSbs-service.active { background-color: #f4dccf; border-color: #e8836b; }
+
+#pjWrapper .pjSbs-service .pjSbs-ico-check { width: 46px; height: 46px; border-radius: 50%; border: none; top: 50%; left: 16px; margin-top: -23px; background-color: #c9c4b9; display: flex; align-items: center; justify-content: center; color: #ae3c22; }
+#pjWrapper .pjSbs-service .pjSbs-ico-check svg { display: block; width: 22px; height: 22px; }
+#pjWrapper .pjSbs-service.active .pjSbs-ico-check { background-color: #e8836b; color: #fff; }
+#pjWrapper .pjSbs-service.active .pjSbs-ico-check:after { display: none; content: none; }
+
+/* per-service icon: inline SVG chosen from the service name by elements/service_icon.php */
+
+/* plain checkmark glyph on the right when a service is selected */
+#pjWrapper .pjSbs-service.active:after { content: ""; position: absolute; top: 50%; right: 18px; margin-top: -11px; width: 22px; height: 22px; border-radius: 50%; background-color: #e8836b; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 13 10 18 19 7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; background-size: 12px 12px; }
+
+#pjWrapper .pjSbs-service-title { color: #4a2a22; }
+#pjWrapper .pjSbs-service-desc { color: #7b5b51; }
+#pjWrapper .pjSbs-service-utilities em { color: #ae3c22; }
+
+#pjWrapper .pjSbs-services-footer { background-color: #4a2a22; border-radius: 0 0 16px 16px; }
+#pjWrapper .pjSbs-services-footer-title { color: #c7cac6; }
+
+/* ---- Date picker ----
+   White card with a soft shadow instead of a flat tan block; the selected
+   day gets a sage-to-button gradient fill so it reads clearly against the
+   white cards used everywhere else in this redesign. */
+#pjWrapper .pjSbs-date { border: none; background-color: #fff; border-radius: 14px; color: #7b5b51; padding: 8px 0; box-shadow: 0 2px 6px rgba(74, 42, 34, 0.06); }
+#pjWrapper .pjSbs-date.active { border: none; background: linear-gradient(135deg, #e8836b, #c94e33); box-shadow: 0 6px 14px rgba(232, 131, 107, 0.4); }
+#pjWrapper .pjSbs-date.active .pjSbs-date-day,
+#pjWrapper .pjSbs-date.active .pjSbs-date-month { color: rgba(255, 255, 255, 0.85); }
+#pjWrapper .pjSbs-date.active .pjSbs-date-number { background-color: transparent; color: #fff; }
+#pjWrapper .pjSbs-date-number { color: #4a2a22; }
+#pjWrapper .pjSbs-date.disabled { background-color: #f3f1ec; box-shadow: none; }
+
+#pjWrapper .pjSbs-calendar-pick-holder .pjSbs-owl-nav div,
+#pjWrapper .pjSbs-calendar-pick .owl-nav div { background-color: #fff; border-color: #e3ded3; }
+#pjWrapper .pjSbs-calendar-pick-holder .pjSbs-owl-nav div:after,
+#pjWrapper .pjSbs-calendar-pick .owl-nav div:after { color: #e8836b; }
+
+/* ---- Hour / minute grid: one unified card ----
+   Hour and Minutes used to be two separately-coloured panels (each with
+   its own solid sage heading bar) sitting directly on the page
+   background. They're now one white card (matching the Client Details
+   and booking-summary cards elsewhere in this theme) with a thin
+   vertical divider between the two columns, and the heading bars are
+   replaced with small accent-coloured labels. */
+#pjWrapper .pjSbs-available-times {
+	background-color: #fff; border-radius: 16px; margin: 0 20px 10px;
+	padding-top: 22px; padding-left: 20px; padding-right: 20px;
+	box-shadow: 0 6px 18px rgba(74, 42, 34, 0.06);
+}
+#pjWrapper .pjSbs-available-times-title { font-size: 12px; letter-spacing: 0.08em; padding-bottom: 18px; }
+
+#pjWrapper .pjSbs-available-times .col-sm-4 { border-left: 1px solid #f1efe9; }
+
+#pjWrapper .pjSbs-available-times table th,
+#pjWrapper .pjSbs-time-grid .pjSbs-heading {
+	background-color: transparent; color: #ae3c22; font-size: 11px; font-weight: 700;
+	letter-spacing: 0.08em; text-align: left; padding: 0 0 14px; border-radius: 0; margin: 0;
+}
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-period span { color: #7b5b51; font-size: 13px; font-weight: 700; }
+
+#pjWrapper .pjSbs-available-times table td:not(.pjSbs-meridium),
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span { background-color: #f3f1ec; border: none; border-radius: 8px; color: #4a2a22; font-size: 13px; font-weight: 600; }
+
+#pjWrapper .pjSbs-available-times table td.active,
+#pjWrapper .pjSbs-available-times table td:not(.pjSbs-meridium):hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.active,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.active,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span:hover { background-color: #e8836b; border-color: #e8836b; color: #fff; box-shadow: 0 4px 10px rgba(232, 131, 107, 0.35); }
+
+#pjWrapper .pjSbs-available-times table td.pjSbs-disabled,
+#pjWrapper .pjSbs-available-times table td.pjSbs-disabled:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.pjSbs-disabled,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.pjSbs-disabled:hover,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.pjSbs-disabled,
+#pjWrapper .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.pjSbs-disabled:hover { background-color: #f9f8f5; color: #d6d1c6; box-shadow: none; }
+
+/* ---- Client details / price summary ---- */
+#pjWrapper .pjSbs-services-form { background-color: #fff; border-radius: 16px; margin: 0 20px 10px; padding: 24px 24px 10px; }
+#pjWrapper .pjSbs-services-form-title { color: #7b5b51; padding-top: 6px; margin-bottom: 4px; }
+
+/* Client details form - light polish: softer labels, breathing room
+   between fields, a visible sage focus glow on inputs/selects/textarea
+   (there was previously no focus state at all), a palette-matched
+   required-field asterisk, and a themed checkbox accent for Terms. */
+#pjWrapper .pjSbs-services-form label {
+	color: #5c615f; font-weight: 600; font-size: 12.5px;
+	letter-spacing: 0.04em; margin-bottom: 8px;
+}
+#pjWrapper .pjSbs-services-form label span { color: #c17b5e; }
+
+#pjWrapper .form-group { margin-bottom: 24px; }
+
+#pjWrapper .form-control {
+	border-color: #e3ded3; border-radius: 10px; background-color: #faf9f6;
+	color: #4a2a22; transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+#pjWrapper .form-control::placeholder { color: #aba6a0; }
+#pjWrapper .form-control:hover { border-color: #cfc9bd; }
+#pjWrapper .form-control:focus {
+	border-color: #e8836b; background-color: #fff; outline: none;
+	box-shadow: 0 0 0 3px rgba(232, 131, 107, 0.18);
+}
+
+#pjWrapper .pjSbs-services-form-checkbox label {
+	color: #4a2a22; font-weight: normal; letter-spacing: normal;
+}
+#pjWrapper .pjSbs-services-form-checkbox input[type="checkbox"],
+#pjWrapper input[type="checkbox"].required { accent-color: #e8836b; }
+
+/* ---- Booking summary: card-style line items ----
+   Each service line item is now its own soft-tinted card with a small
+   rotating icon badge and a pill-shaped price (replacing the earlier
+   divider-separated rows + circular "ring" price badges). The
+   Sub-total/Tax/Total/Deposit block becomes its own tinted summary card,
+   with Total pulled out as the clear headline number. */
+#pjWrapper .pjSbs-services-prices-row { border-bottom: none; }
+#pjWrapper .pjSbs-service-title,
+#pjWrapper .pjSbs-price { color: #4a2a22; }
+
+/* -- per-service cards -- */
+#pjWrapper .pjSbs-services-prices-row:not(.pjSbs-services-prices-total) { padding: 0 0 12px; }
+#pjWrapper .pjSbs-services-prices-row:not(.pjSbs-services-prices-total) .row {
+	display: flex; align-items: center; gap: 14px; margin: 0;
+	background: #faf9f6; border-radius: 14px; padding: 14px 16px;
+}
+#pjWrapper .pjSbs-services-prices-row:not(.pjSbs-services-prices-total) .row:before {
+	content: ""; width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+	background-color: #fff; background-repeat: no-repeat; background-position: center; background-size: 22px 22px;
+	box-shadow: 0 2px 6px rgba(74, 42, 34, 0.08);
+}
+/* cycle through the same 5 decorative icons used on the Select Services
+   cards (re-coloured sage instead of white, for a light card background).
+   Row 1 is the Date & Time row (no ".row" inside it, so these never match
+   there); service rows start at row 2. */
+#pjWrapper .pjSbs-services-prices-row:nth-of-type(5n+2) .row:before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8836b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='7' y='8' width='10' height='10' rx='2'/%3E%3Cpath d='M9 8V6a3 3 0 0 1 6 0v2'/%3E%3Cpath d='M4 12h3M17 12h3M7 16l-2 2M17 16l2 2M7 10l-2-2M17 10l2-2'/%3E%3C/svg%3E"); }
+#pjWrapper .pjSbs-services-prices-row:nth-of-type(5n+3) .row:before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8836b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='6' y='4' width='12' height='16' rx='2'/%3E%3Cpath d='M9 4h6v2H9z'/%3E%3Ccircle cx='15' cy='16' r='3'/%3E%3Cpath d='M17.2 18.2 19 20'/%3E%3C/svg%3E"); }
+#pjWrapper .pjSbs-services-prices-row:nth-of-type(5n+4) .row:before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8836b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 16l1.5-5A2 2 0 0 1 8.4 9.5h7.2a2 2 0 0 1 1.9 1.5L19 16'/%3E%3Crect x='3.5' y='16' width='17' height='4' rx='1.5'/%3E%3Ccircle cx='7.5' cy='18' r='0.6' fill='%23e8836b'/%3E%3Ccircle cx='16.5' cy='18' r='0.6' fill='%23e8836b'/%3E%3C/svg%3E"); }
+#pjWrapper .pjSbs-services-prices-row:nth-of-type(5n+5) .row:before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8836b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='13' r='7'/%3E%3Cpath d='M12 13l3-3M9 5h6'/%3E%3C/svg%3E"); }
+#pjWrapper .pjSbs-services-prices-row:nth-of-type(5n+6) .row:before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8836b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='13' r='8'/%3E%3Cpath d='M12 13l4-4M8 13h8'/%3E%3C/svg%3E"); }
+
+#pjWrapper .pjSbs-services-prices-row:not(.pjSbs-services-prices-total) .col-xs-9 { float: none; flex: 1; min-width: 0; padding: 0; }
+#pjWrapper .pjSbs-services-prices-row:not(.pjSbs-services-prices-total) .col-xs-3 { float: none; flex-shrink: 0; padding: 0; width: auto; }
+#pjWrapper .pjSbs-services-prices-row:not(.pjSbs-services-prices-total) .pjSbs-price {
+	display: inline-flex; align-items: center; justify-content: center;
+	background: #fff; border: 2px solid #e8836b; border-radius: 999px;
+	padding: 8px 16px; font-size: 14px; white-space: nowrap;
+}
+
+/* -- totals summary card -- */
+#pjWrapper .pjSbs-services-prices-total {
+	background: linear-gradient(160deg, #fbefe9, #f6e1d7); border-radius: 14px; padding: 16px 18px 12px; margin-top: 4px;
+}
+#pjWrapper .pjSbs-services-prices-total .row { display: flex; align-items: center; margin: 0; padding: 6px 0; }
+#pjWrapper .pjSbs-services-prices-total .col-xs-9 { float: none; flex: 1; padding: 0; }
+#pjWrapper .pjSbs-services-prices-total .col-xs-3 { float: none; flex-shrink: 0; padding: 0; width: auto; }
+#pjWrapper .pjSbs-services-prices-total .pjSbs-service-title,
+#pjWrapper .pjSbs-services-prices-total .pjSbs-price { color: #7b5b51; }
+
+/* Total is the 3rd of the 4 rows (sub-total, tax, total, deposit) -
+   pulled out as the headline number */
+#pjWrapper .pjSbs-services-prices-total .row:nth-of-type(3) {
+	border-top: 1px solid rgba(74, 42, 34, 0.14); margin-top: 6px; padding-top: 12px;
+}
+#pjWrapper .pjSbs-services-prices-total .row:nth-of-type(3) .pjSbs-service-title { font-size: 18px; color: #4a2a22; }
+#pjWrapper .pjSbs-services-prices-total .row:nth-of-type(3) .pjSbs-price { font-size: 25px; color: #ae3c22; }
+
+/* ---- Booking submitted (success) screen ---- */
+#pjWrapper .pjSbs11-success.pjSbs-services { background: linear-gradient(180deg, #fde3cf 0%, #fad7c1 100%); overflow: hidden; position: relative; }
+#pjWrapper .pjSbs11-success .pjSbs-services-head { background-color: transparent; }
+#pjWrapper .pjSbs11-success .pjSbs-services-title,
+#pjWrapper .pjSbs11-success .pjSbsb-services-thanks p { color: #5c4632; }
+#pjWrapper .pjSbs11-success .pjSbsb-services-thanks { position: relative; padding-top: 60px; z-index: 2; }
+#pjWrapper .pjSbs11-success .pjSbsb-services-thanks:before {
+	content: "";
+	position: absolute; top: -30px; left: 50%; width: 260px; height: 260px; margin-left: -130px;
+	background-image: repeating-conic-gradient(rgba(255,255,255,0.55) 0deg 4deg, transparent 4deg 18deg);
+	border-radius: 50%; z-index: -1;
+	-webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
+	mask-image: radial-gradient(circle, black 30%, transparent 70%);
+}
+#pjWrapper .pjSbs11-success .pjSbsBtnStartOver { background-color: #c94e33; border-color: #c94e33; color: #fff; border-radius: 26px; }
+#pjWrapper .pjSbs11-success .pjSbsBtnStartOver:hover { background-color: #b73f24; border-color: #b73f24; }
+
+@media (max-width: 639px) {
+	#pjWrapper .pjSbs11-steps { flex-wrap: wrap; }
+}

@@ -42,7 +42,7 @@ class pjFrontEnd extends pjFront
 	
 		$theme = $this->option_arr['o_theme'];
 		$fonts = $this->option_arr['o_theme'];
-		if(isset($_GET['theme']) && in_array($_GET['theme'], array('theme1', 'theme2', 'theme3', 'theme4', 'theme5', 'theme6', 'theme7', 'theme8', 'theme9', 'theme10')))
+		if(isset($_GET['theme']) && in_array($_GET['theme'], array('theme1', 'theme2', 'theme3', 'theme4', 'theme5', 'theme6', 'theme7', 'theme8', 'theme9', 'theme10', 'theme11')))
 		{
 			$theme = $_GET['theme'];
 			$fonts = $_GET['theme'];
@@ -62,7 +62,7 @@ class pjFrontEnd extends pjFront
 			@readfile($item['path'] . $item['file']);
 			$string = ob_get_contents();
 			ob_end_clean();
-				
+
 			if ($string !== FALSE)
 			{
 				echo str_replace(
@@ -74,6 +74,137 @@ class pjFrontEnd extends pjFront
 						$string
 				) . "\n";
 			}
+		}
+
+		if ($theme === 'theme11')
+		{
+			$wrap = "pjWrapperServiceBooking_" . $theme;
+			$colors = array(
+				// general
+				'header'        => '#e8836b',
+				'page'          => '#fbf0ea',
+				'card'          => '#f4dccf',
+				// text / fonts
+				'text_heading'  => '#4a2a22',
+				'text_body'     => '#7b5b51',
+				'text_accent'   => '#ae3c22',
+				// buttons
+				'button'        => '#c94e33',
+				'button_hover'  => '#b73f24',
+				// list (service cards, date/time cells) active vs inactive state
+				'list_active'   => '#dc775f',
+				'list_inactive' => '#f0d3c6'
+			);
+			foreach ($colors as $key => $default)
+			{
+				$opt_key = 'o_theme11_' . $key;
+				if (isset($this->option_arr[$opt_key]) && preg_match('/^#[0-9a-fA-F]{3,8}$/', $this->option_arr[$opt_key]))
+				{
+					$colors[$key] = $this->option_arr[$opt_key];
+				}
+			}
+			// "#abc" / "#aabbcc" -> "rgba(r,g,b,alpha)" for soft glows and tints that follow the chosen colours
+			$rgba = function ($hex, $alpha) {
+				$h = ltrim($hex, '#');
+				if (strlen($h) == 3) { $h = $h[0].$h[0].$h[1].$h[1].$h[2].$h[2]; }
+				if (strlen($h) < 6) { return 'transparent'; }
+				return 'rgba(' . hexdec(substr($h, 0, 2)) . ',' . hexdec(substr($h, 2, 2)) . ',' . hexdec(substr($h, 4, 2)) . ',' . $alpha . ')';
+			};
+			// inline "%23rrggbb" for the theme line icons that are SVG data-URIs
+			$svgColor = '%23' . ltrim(substr($colors['header'], 0, 7), '#');
+			$rowIcons = array(
+				2 => "%3Crect x='7' y='8' width='10' height='10' rx='2'/%3E%3Cpath d='M9 8V6a3 3 0 0 1 6 0v2'/%3E%3Cpath d='M4 12h3M17 12h3M7 16l-2 2M17 16l2 2M7 10l-2-2M17 10l2-2'/%3E",
+				3 => "%3Crect x='6' y='4' width='12' height='16' rx='2'/%3E%3Cpath d='M9 4h6v2H9z'/%3E%3Ccircle cx='15' cy='16' r='3'/%3E%3Cpath d='M17.2 18.2 19 20'/%3E",
+				4 => "%3Cpath d='M5 16l1.5-5A2 2 0 0 1 8.4 9.5h7.2a2 2 0 0 1 1.9 1.5L19 16'/%3E%3Crect x='3.5' y='16' width='17' height='4' rx='1.5'/%3E%3Ccircle cx='7.5' cy='18' r='0.6' fill='" . $svgColor . "'/%3E%3Ccircle cx='16.5' cy='18' r='0.6' fill='" . $svgColor . "'/%3E",
+				5 => "%3Ccircle cx='12' cy='13' r='7'/%3E%3Cpath d='M12 13l3-3M9 5h6'/%3E",
+				6 => "%3Ccircle cx='12' cy='13' r='8'/%3E%3Cpath d='M12 13l4-4M8 13h8'/%3E"
+			);
+			?>
+/* general */
+#<?php echo $wrap; ?> { background-color: <?php echo $colors['page']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-services,
+#<?php echo $wrap; ?> .pjSbs11-success.pjSbs-services { background-color: <?php echo $colors['page']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-services-form { background-color: #fff; }
+
+/* text / fonts */
+#<?php echo $wrap; ?> a,
+#<?php echo $wrap; ?> .pjSbs-service-utilities em { color: <?php echo $colors['text_accent']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-services-title,
+#<?php echo $wrap; ?> .pjSbs-service-title,
+#<?php echo $wrap; ?> .pjSbs-price,
+#<?php echo $wrap; ?> .pjSbs11-success .pjSbs-services-title { color: <?php echo $colors['text_heading']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-service-desc,
+#<?php echo $wrap; ?> .pjSbs-services-form-title,
+#<?php echo $wrap; ?> .pjSbs11-step-label { color: <?php echo $colors['text_body']; ?>; }
+
+/* buttons */
+#<?php echo $wrap; ?> .btn-primary,
+#<?php echo $wrap; ?> .pjSbsBtnStartOver.btn-default,
+#<?php echo $wrap; ?> .pjSbs11-success .pjSbsBtnStartOver { background-color: <?php echo $colors['button']; ?>; border-color: <?php echo $colors['button']; ?>; }
+#<?php echo $wrap; ?> .btn-primary:hover,
+#<?php echo $wrap; ?> .pjSbsBtnStartOver.btn-default:hover,
+#<?php echo $wrap; ?> .pjSbs11-success .pjSbsBtnStartOver:hover { background-color: <?php echo $colors['button_hover']; ?>; border-color: <?php echo $colors['button_hover']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-btn-back { color: <?php echo $colors['header']; ?>; }
+
+/* header / accent: step tracker (done+current), back button, grid heading labels */
+#<?php echo $wrap; ?> .pjSbs11-step-current .pjSbs11-step-bar,
+#<?php echo $wrap; ?> .pjSbs11-step-done .pjSbs11-step-bar { background-color: <?php echo $colors['header']; ?>; }
+/* step icon chips follow the same accent colour (current = filled chip, done = icon + check badge) */
+#<?php echo $wrap; ?> .pjSbs11-step-current .pjSbs11-step-icon { background-color: <?php echo $colors['header']; ?>; }
+#<?php echo $wrap; ?> .pjSbs11-step-done .pjSbs11-step-icon { color: <?php echo $colors['header']; ?>; }
+#<?php echo $wrap; ?> .pjSbs11-step-done .pjSbs11-step-icon:after { background-color: <?php echo $colors['header']; ?>; border-color: <?php echo $colors['page']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-available-times table th { background-color: <?php echo $colors['header']; ?>; }
+/* the Hour/Minutes grid headings are a small text label on the unified
+   white card now (not a solid colour bar), so the "Header / accent
+   colour" swatch tints the text instead of filling a background */
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-heading { color: <?php echo $colors['header']; ?>; }
+
+/* list - inactive/default state (unselected cards, un-reached step bar segments) */
+#<?php echo $wrap; ?> .pjSbs-service,
+#<?php echo $wrap; ?> .pjSbs-service.active:hover,
+#<?php echo $wrap; ?> .pjSbs-service.active,
+#<?php echo $wrap; ?> .pjSbs-date,
+#<?php echo $wrap; ?> .pjSbs-available-times table td:not(.pjSbs-meridium),
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-minute span,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span { background-color: <?php echo $colors['card']; ?>; }
+#<?php echo $wrap; ?> .pjSbs11-step-bar { background-color: <?php echo $colors['list_inactive']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-service .pjSbs-ico-check { background-color: <?php echo $colors['list_inactive']; ?>; color: <?php echo $colors['text_accent']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-service.active .pjSbs-ico-check { color: #fff; }
+
+/* list - active/selected state (chosen service card, chosen date/hour/minute) */
+#<?php echo $wrap; ?> .pjSbs-service.active .pjSbs-ico-check,
+#<?php echo $wrap; ?> .pjSbs-service.active:after,
+#<?php echo $wrap; ?> .pjSbs-date.active,
+#<?php echo $wrap; ?> .pjSbs-available-times table td.active,
+#<?php echo $wrap; ?> .pjSbs-available-times table td:not(.pjSbs-meridium):hover,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.active,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-minute span:hover,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.active,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span:hover { background-color: <?php echo $colors['list_active']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-service.active { border-color: <?php echo $colors['list_active']; ?>; }
+
+/* fine-tuning: the remaining accents (gradients, glows, borders, line icons) follow the chosen colours too */
+#<?php echo $wrap; ?> .pjSbs-service:hover { background-color: <?php echo $colors['card']; ?>; border-color: <?php echo $colors['list_active']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-date.active { background: linear-gradient(135deg, <?php echo $colors['list_active']; ?>, <?php echo $colors['button']; ?>); box-shadow: 0 6px 14px <?php echo $rgba($colors['list_active'], 0.4); ?>; }
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-minute span.active,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-minute span:hover,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span.active,
+#<?php echo $wrap; ?> .pjSbs-time-grid .pjSbs-body .pjSbs-hour-cell span:hover { box-shadow: 0 4px 10px <?php echo $rgba($colors['list_active'], 0.35); ?>; border-color: <?php echo $colors['list_active']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-calendar-pick-holder .pjSbs-owl-nav div:after,
+#<?php echo $wrap; ?> .pjSbs-calendar-pick .owl-nav div:after { color: <?php echo $colors['header']; ?>; }
+#<?php echo $wrap; ?> .form-control:focus { border-color: <?php echo $colors['header']; ?>; box-shadow: 0 0 0 3px <?php echo $rgba($colors['header'], 0.18); ?>; }
+#<?php echo $wrap; ?> .pjSbs-services-form-checkbox input[type="checkbox"],
+#<?php echo $wrap; ?> input[type="checkbox"].required { accent-color: <?php echo $colors['header']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-services-prices-row:not(.pjSbs-services-prices-total) .pjSbs-price { border-color: <?php echo $colors['header']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-services-prices-total { background: linear-gradient(160deg, <?php echo $rgba($colors['header'], 0.10); ?>, <?php echo $rgba($colors['header'], 0.22); ?>); }
+#<?php echo $wrap; ?> .pjSbs-services-prices-total .pjSbs-service-title,
+#<?php echo $wrap; ?> .pjSbs-services-prices-total .pjSbs-price { color: <?php echo $colors['text_body']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-services-prices-total .row:nth-of-type(3) .pjSbs-service-title { color: <?php echo $colors['text_heading']; ?>; }
+#<?php echo $wrap; ?> .pjSbs-services-prices-total .row:nth-of-type(3) .pjSbs-price { color: <?php echo $colors['text_accent']; ?>; }
+<?php foreach ($rowIcons as $pos => $body) { ?>
+#<?php echo $wrap; ?> .pjSbs-services-prices-row:nth-of-type(5n+<?php echo $pos; ?>) .row:before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='<?php echo $svgColor; ?>' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'<?php echo "%3E" . $body . "%3C/svg%3E"; ?>"); }
+<?php } ?>
+<?php
 		}
 		exit;
 	}

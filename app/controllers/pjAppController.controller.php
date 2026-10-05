@@ -9,6 +9,63 @@ class pjAppController extends pjController
 	public $models = array();
 
 	/**
+	 * Recursively trim leading/trailing whitespace from every string in a value (e.g. $_POST).
+	 */
+	public static function trimDeep($value)
+	{
+		if (is_array($value))
+		{
+			foreach ($value as $k => $v)
+			{
+				$value[$k] = self::trimDeep($v);
+			}
+			return $value;
+		}
+		return is_string($value) ? trim($value) : $value;
+	}
+
+	/**
+	 * Lenient phone check: an optional leading +, then digits, spaces, ( ) . - ; 5 to 15 digits in total.
+	 * An empty value is "valid" here (use the required rule separately).
+	 */
+	public static function isValidPhone($phone)
+	{
+		$phone = trim((string) $phone);
+		if ($phone === '')
+		{
+			return true;
+		}
+		$digits = preg_replace('/\D/', '', $phone);
+		return (bool) preg_match('/^\+?[0-9()\s.\-]+$/', $phone) && strlen($digits) >= 5 && strlen($digits) <= 15;
+	}
+
+	/**
+	 * Validate the client-details part of a booking/checkout POST against the "Booking form" options
+	 * (o_bf_include_* : 1 = hidden, 2 = optional, 3 = required). Returns true when everything is fine.
+	 */
+	public static function validateClientDetails($post, $option_arr)
+	{
+		$fields = array('title', 'name', 'email', 'phone', 'notes', 'company', 'address', 'city', 'state', 'zip', 'country');
+		foreach ($fields as $f)
+		{
+			$value = isset($post['c_' . $f]) ? trim((string) $post['c_' . $f]) : '';
+			if (isset($option_arr['o_bf_include_' . $f]) && (int) $option_arr['o_bf_include_' . $f] === 3 && $value === '')
+			{
+				return false;
+			}
+		}
+		if (isset($post['c_email']) && trim($post['c_email']) !== '' && !filter_var(trim($post['c_email']), FILTER_VALIDATE_EMAIL))
+		{
+			return false;
+		}
+		if (isset($post['c_phone']) && !self::isValidPhone($post['c_phone']))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Generate (or return existing) CSRF token for the current session.
 	 */
 	public static function getCsrfToken()

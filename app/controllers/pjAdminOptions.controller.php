@@ -76,6 +76,9 @@ class pjAdminOptions extends pjAdmin
 						case 'pjActionTerm':
 							$err = 'AO05';
 							break;
+						case 'pjActionPreview':
+							$err = 'AO06';
+							break;
 					}
 				}
 				pjUtil::redirect($_SERVER['PHP_SELF'] . "?controller=pjAdminOptions&action=" . @$_POST['next_action'] . "&err=$err");
@@ -234,7 +237,7 @@ class pjAdminOptions extends pjAdmin
 				->where('foreign_id', $this->getForeignId())
 				->where('`key`', 'o_theme')
 				->limit(1)
-				->modifyAll(array('value' => 'theme1|theme2|theme3|theme4|theme5|theme6|theme7|theme8|theme9|theme10::theme' . $_GET['theme']));
+				->modifyAll(array('value' => 'theme1|theme2|theme3|theme4|theme5|theme6|theme7|theme8|theme9|theme10|theme11::theme' . $_GET['theme']));
 			
 		}
 	}

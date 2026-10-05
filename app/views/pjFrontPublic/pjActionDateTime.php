@@ -15,6 +15,9 @@ $before_minute_ts = $hours_before * 3600 + strtotime(date('Y-m-d H:i:00', time()
 
 $week_start_ts = null;
 $week_end_ts = null;
+
+$pjSbsStep = 2;
+include_once dirname(__FILE__) . '/elements/steps.php';
 ?>
 <div class="pjSbs-services">
 	<form id="pjSbsDateTimeForm_<?php echo $_GET['index']?>" action="" method="post">

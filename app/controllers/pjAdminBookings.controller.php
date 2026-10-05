@@ -311,6 +311,11 @@ class pjAdminBookings extends pjAdmin
 		{
 			if (isset($_POST['booking_create']))
 			{
+				$_POST = pjAppController::trimDeep($_POST);
+				if (!pjAppController::validateClientDetails($_POST, $this->option_arr))
+				{
+					pjUtil::redirect(PJ_INSTALL_URL . "index.php?controller=pjAdminBookings&action=pjActionCreate");
+				}
 				$data = array();
 				
 				$data['uuid'] = time();
@@ -402,6 +407,11 @@ class pjAdminBookings extends pjAdmin
 		{
 			if (isset($_POST['booking_update']))
 			{
+				$_POST = pjAppController::trimDeep($_POST);
+				if (!pjAppController::validateClientDetails($_POST, $this->option_arr))
+				{
+					pjUtil::redirect(PJ_INSTALL_URL . "index.php?controller=pjAdminBookings&action=pjActionUpdate&id=" . (int) @$_POST['id']);
+				}
 				$pjBookingModel = pjBookingModel::factory();
 				
 				$arr = pjBookingModel::factory()->find($_POST['id'])->getData();

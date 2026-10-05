@@ -27,6 +27,8 @@ if (pjObject::getPlugin('pjOneAdmin') !== NULL && $controller->isAdmin())
 		}
 		?>
 		<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdmin&amp;action=pjActionLogout"><span class="menu-logout">&nbsp;</span><?php __('menuLogout'); ?></a></li>
+
+		<li class="pj-request-customization-item"><a href="https://www.phpjabbers.com/contact.php" target="_blank" rel="nofollow" class="pj-request-customization"><span class="menu-customization">&nbsp;</span><?php __('menuRequestCustomization'); ?></a></li>
 	</ul>
 </div>
 <div class="leftmenu-bottom"></div>

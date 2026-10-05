@@ -1,4 +1,8 @@
-<div class="pjSbs-services">
+<?php
+$pjSbsAllDone = true;
+include_once dirname(__FILE__) . '/elements/steps.php';
+?>
+<div class="pjSbs-services pjSbs11-success">
 	<div class="pjSbs-services-head">
 		<div class="pjSbs-services-title"><?php __('front_thank_you');?></div><!-- /.pjSbs-services-title -->
 	</div><!-- /.pjSbs-services-head -->

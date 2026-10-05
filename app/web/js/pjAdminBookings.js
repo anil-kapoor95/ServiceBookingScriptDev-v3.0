@@ -1,4 +1,37 @@
 var jQuery_1_8_2 = jQuery_1_8_2 || $.noConflict();
+/*
+ * Validation extras (jquery.validate 1.14 treats "   " as a filled-in value and has no ">0" / phone rule):
+ *  - "required" now ignores leading/trailing spaces, so a spaces-only value is empty
+ *  - gtzero : number must be greater than 0 (service price / duration)
+ *  - phone  : 5-15 digits, may contain + ( ) . - and spaces
+ */
+(function ($) {
+	if (!$ || !$.validator || $.validator.pjExtras) { return; }
+	$.validator.pjExtras = true;
+	var origRequired = $.validator.methods.required;
+	$.validator.methods.required = function (value, element, param) {
+		if (typeof value === "string" && element.nodeName.toLowerCase() !== "select" && !this.checkable(element)) { value = $.trim(value); }
+		return origRequired.call(this, value, element, param);
+	};
+	$.validator.addMethod("gtzero", function (value, element) {
+		return this.optional(element) || parseFloat($.trim(value).replace(/,/g, "")) > 0;
+	}, "Please enter a value greater than 0.");
+	$.validator.addMethod("phone", function (value, element) {
+		if (this.optional(element)) { return true; }
+		value = $.trim(value);
+		var digits = value.replace(/\D/g, "");
+		return /^\+?[0-9()\s.\-]+$/.test(value) && digits.length >= 5 && digits.length <= 15;
+	}, "Please enter a valid phone number.");
+	$.validator.addClassRules({gtzero: {gtzero: true}, phone: {phone: true}});
+}(jQuery_1_8_2));
+/* trim leading/trailing spaces when a text field loses focus */
+function pjTrimOnBlur($forms) {
+	$forms.on("blur", "input[type=text], textarea", function () {
+		var v = this.value, t = v.replace(/^\s+|\s+$/g, "");
+		if (v !== t) { this.value = t; }
+	});
+}
+
 (function ($, undefined) {
 	$(function () {
 		"use strict";
@@ -37,6 +70,7 @@ var jQuery_1_8_2 = jQuery_1_8_2 || $.noConflict();
 		}
 		if ($frmCreateBooking.length > 0 || $frmUpdateBooking.length > 0) 
 		{
+			pjTrimOnBlur($frmCreateBooking.add($frmUpdateBooking));
 			$frmCreateBooking.validate({
 				rules: {
 					"cc_type":{

@@ -2,6 +2,9 @@
 $option_arr = $tpl['option_arr']; 
 $STORE = @$_SESSION[$controller->defaultStore];
 $services = isset($STORE['service_id']) ? $STORE['service_id'] : array();
+$pjSbsStep = 1;
+include_once dirname(__FILE__) . '/elements/steps.php';
+include_once dirname(__FILE__) . '/elements/service_icon.php';
 ?>
 <div class="pjSbs-services">
 	<form id="pjSbsServiceForm_<?php echo $_GET['index']?>" action="" method="post">
@@ -37,7 +40,7 @@ $services = isset($STORE['service_id']) ? $STORE['service_id'] : array();
 					}
 					?>
 					<label class="pjSbs-service<?php echo array_key_exists($v['id'], $services) ? ' active' : NULL;?><?php echo !empty($services) && $k+1 == count($tpl['arr']) ? ' pjSbs-service-last-child' : '';?>">
-						<i class="pjSbs-ico-check"></i>
+						<i class="pjSbs-ico-check"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><?php echo pjSbsServiceIcon($v['title'], isset($v['description']) ? $v['description'] : ''); ?></svg></i>
 		
 						<span class="pjSbs-service-title"><?php echo pjSanitize::html($v['title']);?></span>
 		

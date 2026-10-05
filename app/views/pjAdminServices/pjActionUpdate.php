@@ -56,13 +56,13 @@ if (isset($tpl['status']))
 				<label class="title"><?php __('lblPrice'); ?></label>
 				<span class="pj-form-field-custom pj-form-field-custom-before">
 					<span class="pj-form-field-before"><abbr class="pj-form-field-icon-text"><?php echo pjUtil::formatCurrencySign(NULL, $tpl['option_arr']['o_currency'], ""); ?></abbr></span>
-					<input type="text" id="price" name="price" class="pj-form-field number w108 required" value="<?php echo $tpl['arr']['price'];?>" data-msg-number="<?php __('pj_number_validation');?>"/>
+					<input type="text" id="price" name="price" class="pj-form-field number gtzero w108 required" data-msg-gtzero="<?php __('pj_greater_than_zero'); ?>" value="<?php echo $tpl['arr']['price'];?>" data-msg-number="<?php __('pj_number_validation');?>"/>
 				</span>
 			</p>
 			<p>
 				<label class="title"><?php __('lblDuration', false, true); ?></label>
 				<span class="inline_block">
-					<input type="text" id="duration" name="duration" class="pj-form-field field-int digits w80 required" value="<?php echo $tpl['arr']['duration'];?>" data-msg-number="<?php __('pj_digits_validation');?>" data-msg-required="<?php __('pj_field_required');?>"/>
+					<input type="text" id="duration" name="duration" class="pj-form-field field-int digits gtzero w80 required" data-msg-gtzero="<?php __('pj_greater_than_zero'); ?>" value="<?php echo $tpl['arr']['duration'];?>" data-msg-number="<?php __('pj_digits_validation');?>" data-msg-required="<?php __('pj_field_required');?>"/>
 					<?php __('lblMinutes');?>
 				</span>
 			</p>

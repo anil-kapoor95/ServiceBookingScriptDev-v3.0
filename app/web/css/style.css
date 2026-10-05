@@ -2,6 +2,11 @@ body #pjWrapper { font-size: 16px; line-height: 22px; color: #7a808a; font-weigh
 
 #pjWrapper .glyphicon { font-family: 'Glyphicons Halflings'; }
 
+/* Theme 11's segmented step tracker is rendered on every theme's markup (see
+   app/views/pjFrontPublic/elements/steps.php) but should only be visible on
+   theme11; theme11.css turns it back on with display: flex. */
+#pjWrapper .pjSbs11-steps { display: none; }
+
 /*** Modules ***/
 
 #pjWrapper .pjCss-class-body { *zoom: 1; }

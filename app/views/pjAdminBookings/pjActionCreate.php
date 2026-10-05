@@ -266,7 +266,7 @@ if (isset($tpl['status']))
 					<p>
 						<label class="title"><?php __('lblResvPhone'); ?></label>
 						<span class="inline-block">
-							<input type="text" name="c_phone" id="c_phone" class="pj-form-field w400<?php echo $tpl['option_arr']['o_bf_include_phone'] == 3 ? ' required' : NULL; ?>" data-msg-required="<?php __('pj_field_required');?>"/>
+							<input type="text" name="c_phone" id="c_phone" class="pj-form-field phone w400<?php echo $tpl['option_arr']['o_bf_include_phone'] == 3 ? ' required' : NULL; ?>" data-msg-required="<?php __('pj_field_required');?>" data-msg-phone="<?php __('pj_phone_validation'); ?>"/>
 						</span>
 					</p>
 					<?php

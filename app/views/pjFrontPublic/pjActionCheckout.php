@@ -1,3 +1,7 @@
+<?php
+$pjSbsStep = 3;
+include_once dirname(__FILE__) . '/elements/steps.php';
+?>
 <div class="pjSbs-services">
 	<form id="pjSbsCheckoutForm_<?php echo $_GET['index']?>" action="" method="post">
 		<div class="pjSbs-services-head">
@@ -97,7 +101,7 @@
 					<div class="form-group">
 						<label><?php __('front_phone'); ?> <?php if((int) $tpl['option_arr']['o_bf_include_phone'] === 3) {?><span>*</span><?php }?></label>
 						
-						<input type="text" id="c_phone" name="c_phone" class="form-control<?php echo (int) $tpl['option_arr']['o_bf_include_phone'] === 3 ? ' required' : NULL; ?>" value="<?php echo pjSanitize::html(@$FORM['c_phone']); ?>" data-msg-required="<?php __('pj_field_required'); ?>">
+						<input type="text" id="c_phone" name="c_phone" class="form-control phone<?php echo (int) $tpl['option_arr']['o_bf_include_phone'] === 3 ? ' required' : NULL; ?>" value="<?php echo pjSanitize::html(@$FORM['c_phone']); ?>" data-msg-phone="<?php __('pj_phone_validation'); ?>" data-msg-required="<?php __('pj_field_required'); ?>">
 				    	<div class="help-block with-errors"><ul class="list-unstyled"></ul></div>
 					</div>
 				</div>

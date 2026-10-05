@@ -1,3 +1,7 @@
+<?php
+$pjSbsStep = 4;
+include_once dirname(__FILE__) . '/elements/steps.php';
+?>
 <div class="pjSbs-services">
 	<form id="pjSbsPreviewForm_<?php echo $_GET['index']?>" action="" method="post">
 		<div class="pjSbs-services-head">
