@@ -531,6 +531,57 @@ class pjAppController extends pjController
 		return !empty($arr) ? $arr[0]['email'] : null;	
 	}
 	
+	/**
+	 * Sender address used for every notification: the "Sender email" saved on the
+	 * Email Settings tab, otherwise the first admin user's email (previous behaviour).
+	 */
+	public function getFromEmail($option_arr = NULL)
+	{
+		if (is_null($option_arr))
+		{
+			$option_arr = isset($this->option_arr) ? $this->option_arr : array();
+		}
+		if (!empty($option_arr['o_from_email']) && filter_var(trim($option_arr['o_from_email']), FILTER_VALIDATE_EMAIL))
+		{
+			return trim($option_arr['o_from_email']);
+		}
+		return $this->getAdminEmail();
+	}
+	
+	/**
+	 * Sender name saved on the Email Settings tab (empty = no name).
+	 */
+	public function getFromName($option_arr = NULL)
+	{
+		if (is_null($option_arr))
+		{
+			$option_arr = isset($this->option_arr) ? $this->option_arr : array();
+		}
+		return isset($option_arr['o_from_name']) ? trim($option_arr['o_from_name']) : '';
+	}
+	
+	/**
+	 * Apply the transport saved on the Email Settings tab (PHP mail() or SMTP incl.
+	 * security + authentication type) to a pjEmail instance. One place for every sender.
+	 */
+	public static function applyEmailTransport($Email, $option_arr)
+	{
+		if (isset($option_arr['o_send_email']) && $option_arr['o_send_email'] == 'smtp')
+		{
+			$secure = (isset($option_arr['o_smtp_secure']) && in_array($option_arr['o_smtp_secure'], array('ssl', 'tls'))) ? $option_arr['o_smtp_secure'] : '';
+			$auth = (isset($option_arr['o_smtp_auth']) && in_array($option_arr['o_smtp_auth'], array('CRAM-MD5', 'LOGIN', 'PLAIN'))) ? $option_arr['o_smtp_auth'] : 'LOGIN';
+			$Email
+				->setTransport('smtp')
+				->setSmtpHost(isset($option_arr['o_smtp_host']) ? trim($option_arr['o_smtp_host']) : '')
+				->setSmtpPort(isset($option_arr['o_smtp_port']) ? $option_arr['o_smtp_port'] : 25)
+				->setSmtpSecure($secure)
+				->setSmtpUser(isset($option_arr['o_smtp_user']) ? $option_arr['o_smtp_user'] : '')
+				->setSmtpPass(isset($option_arr['o_smtp_pass']) ? $option_arr['o_smtp_pass'] : '')
+				->setSmtpAuthType($auth);
+		}
+		return $Email;
+	}
+	
 	public function getAdminPhone()
 	{
 		$arr = pjUserModel::factory()

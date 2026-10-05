@@ -523,15 +523,7 @@ class pjAdminBookings extends pjAdmin
 			{
 				$Email = new pjEmail();
 				$Email->setContentType('text/html');
-				if ($this->option_arr['o_send_email'] == 'smtp')
-				{
-					$Email
-						->setTransport('smtp')
-						->setSmtpHost($this->option_arr['o_smtp_host'])
-						->setSmtpPort($this->option_arr['o_smtp_port'])
-						->setSmtpUser($this->option_arr['o_smtp_user'])
-						->setSmtpPass($this->option_arr['o_smtp_pass']);
-				}
+				pjAppController::applyEmailTransport($Email, $this->option_arr);
 	
 				$subject = $_POST['subject'];
 				$message = $_POST['message'];
@@ -580,7 +572,7 @@ class pjAdminBookings extends pjAdmin
 	
 					$this->set('arr', array(
 							'to' => $booking_arr['c_email'],
-							'from' => $this->getAdminEmail(),
+							'from' => $this->getFromEmail(),
 							'message' => $message_client,
 							'subject' => $subject_client
 					));
@@ -601,15 +593,7 @@ class pjAdminBookings extends pjAdmin
 			{
 				$Email = new pjEmail();
 				$Email->setContentType('text/html');
-				if ($this->option_arr['o_send_email'] == 'smtp')
-				{
-					$Email
-					->setTransport('smtp')
-					->setSmtpHost($this->option_arr['o_smtp_host'])
-					->setSmtpPort($this->option_arr['o_smtp_port'])
-					->setSmtpUser($this->option_arr['o_smtp_user'])
-					->setSmtpPass($this->option_arr['o_smtp_pass']);
-				}
+				pjAppController::applyEmailTransport($Email, $this->option_arr);
 	
 				$subject = $_POST['subject'];
 				$message = $_POST['message'];
@@ -658,7 +642,7 @@ class pjAdminBookings extends pjAdmin
 	
 					$this->set('arr', array(
 							'to' => $booking_arr['c_email'],
-							'from' => $this->getAdminEmail(),
+							'from' => $this->getFromEmail(),
 							'message' => $message_client,
 							'subject' => $subject_client
 					));

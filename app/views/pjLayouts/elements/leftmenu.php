@@ -16,7 +16,7 @@ if (pjObject::getPlugin('pjOneAdmin') !== NULL && $controller->isAdmin())
 			?>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminServices&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminServices' ? 'menu-focus' : NULL; ?>"><span class="menu-services">&nbsp;</span><?php __('menuServices'); ?></a></li>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminTime&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminTime' ? 'menu-focus' : NULL; ?>"><span class="menu-time">&nbsp;</span><?php __('menuTime'); ?></a></li>
-			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminOptions&amp;action=pjActionIndex" class="<?php echo ($_GET['controller'] == 'pjAdminOptions' && in_array($_GET['action'], array('pjActionIndex', 'pjActionNotification', 'pjActionBookingForm', 'pjActionTerm'))) || in_array($_GET['controller'], array('pjAdminDates', 'pjAdminLocales', 'pjBackup', 'pjLocale', 'pjSms')) ? 'menu-focus' : NULL; ?>"><span class="menu-options">&nbsp;</span><?php __('menuOptions'); ?></a></li>
+			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminOptions&amp;action=pjActionIndex" class="<?php echo ($_GET['controller'] == 'pjAdminOptions' && in_array($_GET['action'], array('pjActionIndex', 'pjActionBooking', 'pjActionNotification', 'pjActionEmailSettings', 'pjActionBookingForm', 'pjActionTerm'))) || in_array($_GET['controller'], array('pjAdminDates', 'pjAdminLocales', 'pjBackup', 'pjLocale', 'pjSms')) ? 'menu-focus' : NULL; ?>"><span class="menu-options">&nbsp;</span><?php __('menuOptions'); ?></a></li>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminUsers&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminUsers' ? 'menu-focus' : NULL; ?>"><span class="menu-users">&nbsp;</span><?php __('menuUsers'); ?></a></li>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminOptions&amp;action=pjActionPreview" class="<?php echo $_GET['controller'] == 'pjAdminOptions' && $_GET['action'] == 'pjActionPreview' ? 'menu-focus' : NULL; ?>"><span class="menu-install">&nbsp;</span><?php __('menuPreviewInstall'); ?></a></li>
 			<?php
@@ -27,7 +27,6 @@ if (pjObject::getPlugin('pjOneAdmin') !== NULL && $controller->isAdmin())
 		}
 		?>
 		<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdmin&amp;action=pjActionLogout"><span class="menu-logout">&nbsp;</span><?php __('menuLogout'); ?></a></li>
-
 		<li class="pj-request-customization-item"><a href="https://www.phpjabbers.com/contact.php" target="_blank" rel="nofollow" class="pj-request-customization"><span class="menu-customization">&nbsp;</span><?php __('menuRequestCustomization'); ?></a></li>
 	</ul>
 </div>

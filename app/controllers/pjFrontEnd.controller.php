@@ -585,21 +585,13 @@ class pjFrontEnd extends pjFront
 	public function pjActionConfirmSend($option_arr, $booking_id, $salt, $opt)
 	{
 		$Email = new pjEmail();
-		if ($option_arr['o_send_email'] == 'smtp')
-		{
-			$Email
-			->setTransport('smtp')
-			->setSmtpHost($option_arr['o_smtp_host'])
-			->setSmtpPort($option_arr['o_smtp_port'])
-			->setSmtpUser($option_arr['o_smtp_user'])
-			->setSmtpPass($option_arr['o_smtp_pass'])
-			;
-		}
+		pjAppController::applyEmailTransport($Email, $option_arr);
 		$Email->setContentType('text/html');
 	
 		$admin_email = $this->getAdminEmail();
 		$admin_phone = $this->getAdminPhone();
-		$from_email = $admin_email;
+		$from_email = $this->getFromEmail($option_arr);
+		$from_name = $this->getFromName($option_arr);
 	
 		$locale_id = $this->getLocaleId();
 	
@@ -630,7 +622,7 @@ class pjFrontEnd extends pjFront
 	
 				$Email
 				->setTo($booking_arr['c_email'])
-				->setFrom($from_email)
+				->setFrom($from_email, $from_name)
 				->setSubject($lang_subject[0]['content'])
 				->send($message);
 			}
@@ -656,7 +648,7 @@ class pjFrontEnd extends pjFront
 	
 				$Email
 				->setTo($admin_email)
-				->setFrom($from_email)
+				->setFrom($from_email, $from_name)
 				->setSubject($lang_subject[0]['content'])
 				->send($message);
 			}
@@ -706,7 +698,7 @@ class pjFrontEnd extends pjFront
 					
 				$Email
 				->setTo($booking_arr['c_email'])
-				->setFrom($from_email)
+				->setFrom($from_email, $from_name)
 				->setSubject($lang_subject[0]['content'])
 				->send($message);
 			}
@@ -731,7 +723,7 @@ class pjFrontEnd extends pjFront
 				$message = str_replace($tokens['search'], $tokens['replace'], $lang_message[0]['content']);
 				$Email
 				->setTo($admin_email)
-				->setFrom($from_email)
+				->setFrom($from_email, $from_name)
 				->setSubject($lang_subject[0]['content'])
 				->send($message);
 			}
@@ -804,7 +796,7 @@ class pjFrontEnd extends pjFront
 	
 				$Email
 				->setTo($booking_arr['c_email'])
-				->setFrom($from_email)
+				->setFrom($from_email, $from_name)
 				->setSubject($lang_subject[0]['content'])
 				->send($message);
 			}
@@ -830,7 +822,7 @@ class pjFrontEnd extends pjFront
 	
 				$Email
 				->setTo($admin_email)
-				->setFrom($from_email)
+				->setFrom($from_email, $from_name)
 				->setSubject($lang_subject[0]['content'])
 				->send($message);
 			}

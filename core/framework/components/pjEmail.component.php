@@ -451,6 +451,7 @@ class pjEmail
 		    if (!$mail->send())
 		    {
 		        $this->errorCode = 104;
+		        $this->errorMessage = $mail->ErrorInfo;
 		        $this->log(104);
 		        return false;
 		    } else {
@@ -461,7 +462,7 @@ class pjEmail
 		    $this->log($e->errorMessage());
 		    return false;
 		} catch (Exception $e) {
-		    $this->errorMessage = $e->errorMessage();
+		    $this->errorMessage = $e->getMessage();
 		    $this->log($e->errorMessage());
 		    return false;
 		}
@@ -805,6 +806,16 @@ class pjEmail
     public function getErrorCode()
     {
         return $this->errorCode;
+    }
+    
+/**
+ * Return the technical reason of the last failure (e.g. the SMTP server answer), if any
+ *
+ * @return string
+ */
+    public function getErrorDetail()
+    {
+        return is_null($this->errorMessage) ? '' : trim(strip_tags((string) $this->errorMessage));
     }
     
 /**
