@@ -1,0 +1,9 @@
+Version 1.1.0
+---------------------------------------
+	- options reduced to: Allow payments with Stripe checkout, Stripe secret key, Stripe public key
+	- no webhook, no payment timeout
+	- late payments for bookings already cancelled by admin are logged as paid_late and never re-confirm the booking
+
+Version 1.0.0
+---------------------------------------
+	- initial: Stripe Checkout (hosted payment page), return-page verification, payment log table

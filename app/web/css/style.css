@@ -39,6 +39,8 @@ html, body { height: 100%; }
 
 #pjWrapper .pjSbs-service .pjSbs-ico-check { width: 42px; height: 42px; border-radius: 5px; border: 1px solid #32b0ea; position: absolute; top: 50%; left: 15px; margin-top: -21px; background-color: #fff; font-family: "Glyphicons Halflings"; }
 #pjWrapper .pjSbs-service.active .pjSbs-ico-check:after { content:"\e013"; position: absolute; top: 0; left: 0; font-size: 22px; font-style: normal; width: 100%; text-align: center; line-height: 40px; color: #32b0ea; }
+/* service icon drawing is Theme 11 only (theme11.css turns it on); the other themes keep the empty box / tick */
+#pjWrapper .pjSbs-service .pjSbs-ico-check svg { display: none; }
 
 #pjWrapper .pjSbs-service-title { display: block; font-size: 22px; color: #43464a; padding-bottom: 10px; font-weight:bold }
 

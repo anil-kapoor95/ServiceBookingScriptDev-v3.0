@@ -47,6 +47,15 @@ var jQuery_1_8_2 = jQuery_1_8_2 || $.noConflict();
 				$(".boxAuthorize").show();
 				break;
 			}
+		}).on("change", "select[name='value-enum-o_allow_stripe']", function (e) {
+			switch ($("option:selected", this).val()) {
+			case 'Yes|No::No':
+				$(".boxStripe").hide();
+				break;
+			case 'Yes|No::Yes':
+				$(".boxStripe").show();
+				break;
+			}
 		}).on("change", "select[name='value-enum-o_allow_bank']", function (e) {
 			switch ($("option:selected", this).val()) {
 			case 'Yes|No::No':

@@ -500,6 +500,58 @@ class pjFrontEnd extends pjFront
 		}
 	}
 		
+	/**
+	 * Stripe Checkout "success_url": the customer comes back from Stripe's payment page.
+	 * The payment is verified with Stripe (never trusted from the URL) before the booking is confirmed.
+	 */
+	public function pjActionConfirmStripe()
+	{
+		$thankyou = $this->option_arr['o_thankyou_page'];
+		if (pjObject::getPlugin('pjStripe') === NULL)
+		{
+			$this->log('Stripe plugin not installed');
+			pjUtil::redirect($thankyou);
+		}
+		$booking_arr = pjBookingModel::factory()->find(isset($_GET['booking_id']) ? (int) $_GET['booking_id'] : 0)->getData();
+		if (count($booking_arr) == 0)
+		{
+			$this->log('Stripe: no such booking');
+			pjUtil::redirect($thankyou);
+		}
+		if (!isset($_GET['hash']) || $_GET['hash'] !== sha1($booking_arr['id'] . $booking_arr['created'] . PJ_SALT))
+		{
+			$this->log('Stripe: invalid booking hash');
+			pjUtil::redirect($thankyou);
+		}
+		
+		$key = md5($this->option_arr['private_key'] . PJ_SALT);
+		$response = $this->requestAction(array('controller' => 'pjStripe', 'action' => 'pjActionConfirm', 'params' => array(
+			'key' => $key,
+			'secret_key' => $this->option_arr['o_stripe_secret_key'],
+			'session_id' => isset($_GET['stripe_sid']) ? $_GET['stripe_sid'] : '',
+			'booking_id' => $booking_arr['id'],
+			'amount' => $booking_arr['deposit'],
+			'currency' => $this->option_arr['o_currency']
+		)), array('return'));
+		
+		if (is_array($response) && $response['status'] === 'OK')
+		{
+			if ($this->stripeConfirmPaid($booking_arr, $response) === 'late')
+			{
+				$late = __('front_stripe_late_payment', true);
+				$late = (is_string($late) && $late !== '' && $late !== 'front_stripe_late_payment') ? $late : 'Your payment was received, but this booking had already been cancelled. Please contact us about your payment.';
+				echo '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family: Arial, sans-serif; text-align: center; padding: 40px;"><p>' . pjSanitize::html($late) . '</p></body></html>';
+				exit;
+			}
+		} elseif (is_array($response) && $response['status'] === 'PENDING') {
+			$this->log('Stripe: payment for booking #' . $booking_arr['id'] . ' is not completed yet ');
+		} else {
+			$this->log('Stripe: payment for booking #' . $booking_arr['id'] . ' could not be verified');
+		}
+		pjUtil::redirect($thankyou);
+	}
+	
+	
 	public function pjActionCancel()
 	{
 		$this->setLayout('pjActionCancel');

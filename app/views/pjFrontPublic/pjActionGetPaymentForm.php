@@ -28,6 +28,17 @@ include_once dirname(__FILE__) . '/elements/steps.php';
 							$controller->requestAction(array('controller' => 'pjAuthorize', 'action' => 'pjActionForm', 'params' => $tpl['params']));
 						}
 						break;
+					case 'stripe':
+						if (!empty($tpl['params']['ok']))
+						{
+							$stripe_msg = __('front_stripe_booking_made', true);
+							?><p class="text-success text-center"><?php echo (is_string($stripe_msg) && $stripe_msg !== '' && $stripe_msg !== 'front_stripe_booking_made') ? $stripe_msg : 'Your booking has been made. You will be redirected to Stripe.'; ?></p><?php
+						}
+						if (pjObject::getPlugin('pjStripe') !== NULL)
+						{
+							$controller->requestAction(array('controller' => 'pjStripe', 'action' => 'pjActionForm', 'params' => $tpl['params']));
+						}
+						break;
 					case 'bank':
 						?><p class="text-success text-center"><?php echo $status[1]; ?></p><?php
 						break;
@@ -39,7 +50,7 @@ include_once dirname(__FILE__) . '/elements/steps.php';
 			}
 			?>
 			<?php
-			if($tpl['get']['payment_method'] == 'bank' || $tpl['get']['payment_method'] == 'creditcard' || $tpl['get']['payment_method'] == 'cash' || $tpl['option_arr']['o_payment_disable'] == 'Yes') 
+			if($tpl['get']['payment_method'] == 'stripe' && empty($tpl['params']['ok']) || $tpl['get']['payment_method'] == 'bank' || $tpl['get']['payment_method'] == 'creditcard' || $tpl['get']['payment_method'] == 'cash' || $tpl['option_arr']['o_payment_disable'] == 'Yes') 
 			{
 				?>
 				<div class="col-sm-12 text-center">

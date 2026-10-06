@@ -63,5 +63,5 @@ if (!defined("PJ_RSA_PRIVATE")) define("PJ_RSA_PRIVATE", '7');
 if (!defined("PJ_IMAGE_USE_THUMBNAIL")) define("PJ_IMAGE_USE_THUMBNAIL", true);
 
 $CONFIG = array();
-$CONFIG['plugins'] = array('pjLocale', 'pjBackup', 'pjLog', 'pjInstaller', 'pjOneAdmin', 'pjPaypal', 'pjAuthorize', 'pjCountry', 'pjSms');
+$CONFIG['plugins'] = array('pjLocale', 'pjBackup', 'pjLog', 'pjInstaller', 'pjOneAdmin', 'pjPaypal', 'pjAuthorize', 'pjStripe', 'pjCountry', 'pjSms');
 ?>

@@ -88,7 +88,7 @@
 						<td><?php echo pjUtil::formatCurrencySign(number_format(floatval($tpl['arr']['deposit']), 2), $tpl['option_arr']['o_currency'], " "); ?></td>
 					</tr>
 					<?php
-					if($tpl['arr']['payment_method'] == 'paypal')
+					if(in_array($tpl['arr']['payment_method'], array('paypal', 'stripe')))
 					{ 
 						?>
 						<tr>

@@ -65,6 +65,15 @@ if (isset($tpl['status']))
 							$rowStyle = NULL;
 						}
 					}
+					if (in_array($tpl['arr'][$i]['key'], array('o_stripe_secret_key', 'o_stripe_api_key')))
+					{
+						$rowClass = " boxStripe";
+						$rowStyle = "display: none";
+						if ($tpl['option_arr']['o_allow_stripe'] == 'Yes')
+						{
+							$rowStyle = NULL;
+						}
+					}
 					if (in_array($tpl['arr'][$i]['key'], array('o_bank_account')))
 					{
 						$rowClass = " boxBankAccount";
@@ -86,6 +95,11 @@ if (isset($tpl['status']))
 							switch ($tpl['arr'][$i]['type'])
 							{
 								case 'string':
+									if (in_array($tpl['arr'][$i]['key'], array('o_stripe_secret_key')))
+									{
+										?><input type="password" name="value-<?php echo $tpl['arr'][$i]['type']; ?>-<?php echo $tpl['arr'][$i]['key']; ?>" class="pj-form-field w400" value="<?php echo pjSanitize::html($tpl['arr'][$i]['value']); ?>" autocomplete="new-password" /><?php
+										break;
+									}
 								    ?><input type="text" name="value-<?php echo $tpl['arr'][$i]['type']; ?>-<?php echo $tpl['arr'][$i]['key']; ?>" class="pj-form-field w400" value="<?php echo pjSanitize::html($tpl['arr'][$i]['value']); ?>" /><?php
 									break;
 								case 'text':

@@ -705,6 +705,7 @@
 			params.index = self.opts.index;
 			params.booking_id =  obj.booking_id;
 			params.payment_method = obj.payment;
+			params.return_url = window.location.href.split('#')[0];
 			if(self.opts.session_id != '')
 			{
 				params.session_id = self.opts.session_id;
@@ -717,6 +718,9 @@
 						break;
 					case 'authorize':
 						self.$container.find("form[name='sbsAuthorize']").trigger('submit');
+						break;
+					case 'stripe':
+						// the plugin view redirects to Stripe Checkout by itself
 						break;
 					case 'creditcard':
 					case 'bank':

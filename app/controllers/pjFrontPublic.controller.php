@@ -221,6 +221,53 @@ class pjFrontPublic extends pjFront
 							'charset' => 'utf-8'
 						));
 						break;
+					case 'stripe':
+						$stripe = array('url' => '', 'error' => '');
+						if (pjObject::getPlugin('pjStripe') !== NULL)
+						{
+							$hash = sha1($arr['id'] . $arr['created'] . PJ_SALT);
+							// customer cancels on Stripe -> back to the booking page (or the thank-you page)
+							$cancel_url = (isset($_GET['return_url']) && preg_match('#^https?://#i', $_GET['return_url'])) ? $_GET['return_url'] : $this->option_arr['o_thankyou_page'];
+							$items = pjBookingServiceModel::factory()
+								->select('t2.content AS title')
+								->join('pjMultiLang', "t2.model='pjService' AND t2.foreign_id=t1.service_id AND t2.field='title' AND t2.locale='".$this->getLocaleId()."'", 'left outer')
+								->where('t1.booking_id', $arr['id'])
+								->findAll()->getData();
+							$titles = array();
+							foreach ($items as $item)
+							{
+								if (!empty($item['title'])) { $titles[] = $item['title']; }
+							}
+							$description = 'Booking #' . $arr['uuid'] . (count($titles) > 0 ? ' - ' . join(', ', $titles) : '');
+							$response = $this->requestAction(array('controller' => 'pjStripe', 'action' => 'pjActionCreateSession', 'params' => array(
+								'key' => md5($this->option_arr['private_key'] . PJ_SALT),
+								'secret_key' => $this->option_arr['o_stripe_secret_key'],
+								'booking_id' => $arr['id'],
+								'uuid' => $arr['uuid'],
+								'amount' => $arr['deposit'],
+								'currency' => $this->option_arr['o_currency'],
+								'description' => $description,
+								'email' => $arr['c_email'],
+								'success_url' => PJ_INSTALL_URL . 'index.php?controller=pjFrontEnd&action=pjActionConfirmStripe&booking_id=' . $arr['id'] . '&hash=' . $hash . '&stripe_sid={CHECKOUT_SESSION_ID}',
+								'cancel_url' => $cancel_url
+							)), array('return'));
+							if (is_array($response) && $response['status'] === 'OK')
+							{
+								$stripe['ok'] = true;
+								$stripe['url'] = $response['url'];
+								$stripe['session_id'] = $response['session_id'];
+								$stripe['api_key'] = trim($this->option_arr['o_stripe_api_key']);
+								// remember the Checkout Session id (replaced by the payment id once paid)
+								pjBookingModel::factory()->set('id', $arr['id'])->modify(array('txn_id' => $response['session_id']));
+							} else {
+								$stripe['error'] = is_array($response) && isset($response['text']) ? $response['text'] : '';
+								$this->log('Stripe: could not start Checkout for booking #' . $arr['id'] . ' - ' . $stripe['error']);
+							}
+						} else {
+							$this->log('Stripe plugin not installed');
+						}
+						$this->set('params', $stripe);
+						break;
 					case 'authorize':
 						$this->set('params', array(
 							'name' => 'sbsAuthorize',
