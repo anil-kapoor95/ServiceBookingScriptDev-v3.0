@@ -680,15 +680,24 @@
 				var $form = pjQ.$('#pjSbsPreviewForm_'+ self.opts.index);
 				$form.validate({
 					submitHandler: function (form) {
-						self.disableButtons.call(self);
 						var $form = pjQ.$(form);
+						// show "Confirming..." on the Confirm button while the booking is being saved
+						var $submit = $form.find('input[type=submit]').first(),
+							submitText = $submit.val(),
+							resetSubmit = function () { if ($submit.length) { $submit.val(submitText); } };
+						if ($submit.length && $submit.attr('data-confirming')) { $submit.val($submit.attr('data-confirming')); }
+						self.disableButtons.call(self);
 						pjQ.$.post([self.opts.folder, "index.php?controller=pjFrontEnd&action=pjActionSaveBooking"].join(""), $form.serialize()).done(function (data) {
 							if (data.code == "200") {
 								self.getPaymentForm.call(self, data);
-							} else if (data.code == "119") {
-								self.enableButtons.call(self);
+							} else {
+								resetSubmit();
+								if (data.code == "119") {
+									self.enableButtons.call(self);
+								}
 							}
 						}).fail(function () {
+							resetSubmit();
 							self.enableButtons.call(self);
 						});
 						return false;

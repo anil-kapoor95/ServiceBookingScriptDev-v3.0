@@ -14,7 +14,7 @@
 
 <script>
 (function ($, undefined) {
-	var PAYPAL_SCRIPT = 'https://www.paypal.com/sdk/js?client-id=<?php echo $tpl['arr']['client_id'];?>';
+	var PAYPAL_SCRIPT = 'https://www.paypal.com/sdk/js?client-id=<?php echo $tpl['arr']['client_id'];?>&currency=<?php echo urlencode($tpl['arr']['currency_code']);?>';
 	var script = document.createElement('script');
 	script.setAttribute('src', PAYPAL_SCRIPT);
 	document.head.appendChild(script);

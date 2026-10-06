@@ -244,8 +244,4 @@ FROM `fields` f
 CROSS JOIN (SELECT DISTINCT `locale` FROM `multi_lang` WHERE `model` = 'pjField' AND `locale` IS NOT NULL) l
 WHERE f.`key` = 'emailTestBody';
 
--- 3) Refresh the cached label list so the new labels show up immediately.
-UPDATE `options` SET `value` = MD5(RAND()) WHERE `key` = 'o_fields_index';
-
-
 COMMIT;

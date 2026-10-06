@@ -319,7 +319,8 @@ include_once dirname(__FILE__) . '/elements/steps.php';
 		</div><!-- /.pjSbs-services-form -->
 
 		<div class="pjSbs-services-footer pjSbs-services-footer-inline">
-			<input type="submit" class="btn btn-primary" value="<?php __('front_btn_confirm')?>">
+			<?php $pjSbsConfirming = __('front_btn_confirming', true); $pjSbsConfirming = (is_string($pjSbsConfirming) && $pjSbsConfirming !== '' && $pjSbsConfirming !== 'front_btn_confirming') ? $pjSbsConfirming : 'Confirming...'; ?>
+			<input type="submit" class="btn btn-primary" value="<?php __('front_btn_confirm')?>" data-confirming="<?php echo pjSanitize::html($pjSbsConfirming); ?>">
 		</div><!-- /.pjSbs-services-footer -->
 	</form>
 	

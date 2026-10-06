@@ -256,6 +256,8 @@
 }
 #pjWrapper .pjSbs11-success .pjSbsBtnStartOver { background-color: #c94e33; border-color: #c94e33; color: #fff; border-radius: 26px; }
 #pjWrapper .pjSbs11-success .pjSbsBtnStartOver:hover { background-color: #b73f24; border-color: #b73f24; }
+#pjWrapper .pjSbs11-success .pjSbsStripeBtn { background-color: #c94e33; border-color: #c94e33; color: #fff !important; border-radius: 26px; padding: 10px 26px; }
+#pjWrapper .pjSbs11-success .pjSbsStripeBtn:hover { background-color: #b73f24; border-color: #b73f24; }
 
 @media (max-width: 639px) {
 	#pjWrapper .pjSbs11-steps { flex-wrap: wrap; }

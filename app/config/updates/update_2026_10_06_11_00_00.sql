@@ -1,7 +1,4 @@
--- ServiceBookingScriptDev-v2.1 / Stripe Checkout payments  (UNPREFIXED table names)
--- Adds 'stripe' as a payment method: bookings enums, the plugin_stripe log table, the Stripe options
--- (Options > Bookings) and the labels. English text is added for every language id already used by the labels;
--- translate afterwards from the admin label editor. Safe to re-run.
+START TRANSACTION;
 
 -- 1) payment method enums
 ALTER TABLE `bookings` MODIFY `payment_method` enum('paypal','authorize','creditcard','cash','bank','stripe') DEFAULT NULL;
@@ -96,5 +93,18 @@ FROM `fields` f
 CROSS JOIN (SELECT DISTINCT `locale` FROM `multi_lang` WHERE `model` = 'pjField' AND `locale` IS NOT NULL) l
 WHERE f.`key` = 'front_stripe_error';
 
--- 5) refresh the cached label list
-UPDATE `options` SET `value` = MD5(RAND()) WHERE `key` = 'o_fields_index';
+INSERT IGNORE INTO `fields` (`id`, `key`, `type`, `label`, `source`, `modified`) VALUES
+(NULL, 'front_btn_confirming', 'frontend', 'Button / Confirming', 'script', NULL);
+
+INSERT IGNORE INTO `multi_lang` (`id`, `foreign_id`, `model`, `locale`, `field`, `content`, `source`)
+SELECT NULL, f.`id`, 'pjField', l.`locale`, 'title', 'Confirming...', 'script'
+FROM `fields` f
+CROSS JOIN (SELECT DISTINCT `locale` FROM `multi_lang` WHERE `model` = 'pjField' AND `locale` IS NOT NULL) l
+WHERE f.`key` = 'front_btn_confirming';
+
+
+UPDATE `multi_lang` SET `content` = 'URL for the web page where your clients will be redirected after PayPal, Stripe or Authorize.Net payment' WHERE `model` = 'pjField' AND `field` = 'title' AND `foreign_id` IN (SELECT `id` FROM `fields` WHERE `key` = 'opt_o_thankyou_page') AND `content` IN ('URL for the web page where your clients will be redirected after PayPal or Authorize.Net payment', 'URL for the web page where your clients will be redirected after PayPal or Authorize.net payment');
+
+UPDATE `fields` SET `label` = 'Options / URL for the web page where your clients will be redirected after PayPal, Stripe or Authorize.net payment' WHERE `key` = 'opt_o_thankyou_page';
+
+COMMIT;

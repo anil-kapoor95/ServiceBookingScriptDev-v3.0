@@ -32,7 +32,7 @@ if ($ok)
 			s.onload = function () { Stripe(pk).redirectToCheckout({sessionId: sid}); };
 			document.head.appendChild(s);
 		}
-		setTimeout(go, 400);
+		setTimeout(go, 1000); // the customer sees the "booking made" page for 1s, then is redirected
 		var btn = document.getElementById('pjSbsStripeBtn');
 		if (btn) { btn.onclick = function (e) { if (!url) { e.preventDefault(); go(); } }; }
 	})();
