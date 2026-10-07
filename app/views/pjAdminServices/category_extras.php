@@ -77,3 +77,10 @@ p.pj-ms-row { overflow: visible; position: relative; z-index: 5; }
 		?>
 	</span>
 </p>
+<p>
+	<label class="title"><?php __('lblOrder'); ?></label>
+	<span class="inline_block">
+		<input type="text" id="sort_order" name="sort_order" value="<?php echo isset($tpl['arr']['sort_order']) && (int) $tpl['arr']['sort_order'] > 0 ? (int) $tpl['arr']['sort_order'] : ''; ?>" class="pj-form-field digits w80" maxlength="5" data-msg-digits="<?php __('pj_digits_validation'); ?>" />
+		<span style="display: block; margin-top: 5px; text-align: left; color: #666; font-size: 12px; line-height: 16px;"><?php __('lblOrderHint'); ?></span>
+	</span>
+</p>

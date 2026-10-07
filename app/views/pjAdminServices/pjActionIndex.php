@@ -68,6 +68,7 @@ if (isset($tpl['status']))
 	pjGrid.queryString = "";
 	
 	var myLabel = myLabel || {};
+	myLabel.order = "<?php __('lblOrder'); ?>";
 	myLabel.title = "<?php __('lblTitle'); ?>";
 	myLabel.category = "<?php __('lblCategory'); ?>";
 	myLabel.price = "<?php __('lblPrice'); ?>";

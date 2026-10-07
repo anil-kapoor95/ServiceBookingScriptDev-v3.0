@@ -56,7 +56,7 @@ class pjAdminBookings extends pjAdmin
 				->select('t1.*, t2.content as title')
 				->join('pjMultiLang', "t2.model='pjService' AND t2.foreign_id=t1.id AND t2.field='title' AND t2.locale='".$this->getLocaleId()."'", 'left outer')
 				->where('status', 'T')
-				->orderBy("id ASC")
+				->orderBy("t1.sort_order ASC, t1.id ASC")
 				->findAll()
 				->getData();
 					
@@ -450,7 +450,7 @@ class pjAdminBookings extends pjAdmin
 					->select('t1.*, t2.content as title')
 					->join('pjMultiLang', "t2.model='pjService' AND t2.foreign_id=t1.id AND t2.field='title' AND t2.locale='".$this->getLocaleId()."'", 'left outer')
 					->where('status', 'T')
-					->orderBy("id ASC")
+					->orderBy("t1.sort_order ASC, t1.id ASC")
 					->findAll()
 					->getData();
 					
@@ -561,7 +561,7 @@ class pjAdminBookings extends pjAdmin
 					->select('t1.*, t2.content as title')
 					->join('pjMultiLang', "t2.model='pjService' AND t2.foreign_id=t1.id AND t2.field='title' AND t2.locale='".$this->getLocaleId()."'", 'left outer')
 					->where('status', 'T')
-					->orderBy("id ASC")
+					->orderBy("t1.sort_order ASC, t1.id ASC")
 					->findAll()
 					->getData();
 					

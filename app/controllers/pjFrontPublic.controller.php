@@ -29,7 +29,7 @@ class pjFrontPublic extends pjFront
 			$arr = $pjServiceModel
 				->select("t1.*, t2.content as title, t3.content as description")
 				->where('t1.status', 'T')
-				->orderBy("$column $direction")
+				->orderBy("t1.sort_order ASC, $column $direction")
 				->findAll()
 				->getData();
 
@@ -175,7 +175,7 @@ class pjFrontPublic extends pjFront
 						->join('pjMultiLang', "t3.foreign_id = t1.id AND t3.model = 'pjService' AND t3.locale = '".$this->getLocaleId()."' AND t3.field = 'description'", 'left')
 						->select("t1.*, t2.content as title, t3.content as description")
 						->whereIn('t1.id', array_keys($_SESSION[$this->defaultStore]['service_id']))
-						->orderBy("title ASC")
+						->orderBy("t1.sort_order ASC, title ASC")
 						->findAll()
 						->getData();
 					
@@ -240,7 +240,7 @@ class pjFrontPublic extends pjFront
 					->join('pjMultiLang', "t3.foreign_id = t1.id AND t3.model = 'pjService' AND t3.locale = '".$this->getLocaleId()."' AND t3.field = 'description'", 'left')
 					->select("t1.*, t2.content as title, t3.content as description")
 					->whereIn('t1.id', array_keys($_SESSION[$this->defaultStore]['service_id']))
-					->orderBy("title ASC")
+					->orderBy("t1.sort_order ASC, title ASC")
 					->findAll()
 					->getData();
 

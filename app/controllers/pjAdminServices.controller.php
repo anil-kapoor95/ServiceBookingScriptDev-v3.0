@@ -30,6 +30,11 @@ class pjAdminServices extends pjAdmin
 		{
 			return false;
 		}
+		// display order is optional: empty means "last", otherwise a whole number >= 0
+		if (isset($_POST['sort_order']) && $_POST['sort_order'] !== '' && !ctype_digit((string) $_POST['sort_order']))
+		{
+			return false;
+		}
 		// a category is mandatory and must exist
 		if (!isset($_POST['category_id']) || !ctype_digit((string) $_POST['category_id']) || (int) $_POST['category_id'] <= 0
 			|| !pjServiceCategoryModel::factory()->find((int) $_POST['category_id'])->getData())
@@ -107,6 +112,12 @@ class pjAdminServices extends pjAdmin
 					pjUtil::redirect($_SERVER['PHP_SELF'] . "?controller=pjAdminServices&action=pjActionCreate");
 				}
 				$pjServiceModel = pjServiceModel::factory();
+				// no order given: the new service goes to the end of the list
+				if (!isset($_POST['sort_order']) || $_POST['sort_order'] === '')
+				{
+					$last = pjServiceModel::factory()->select('MAX(t1.sort_order) AS max_order')->findAll()->getData();
+					$_POST['sort_order'] = (int) (isset($last[0]['max_order']) ? $last[0]['max_order'] : 0) + 1;
+				}
 				
 				$id = $pjServiceModel->setAttributes($_POST)->insert()->getInsertId();
 				if ($id !== false && (int) $id > 0)
@@ -210,9 +221,9 @@ class pjAdminServices extends pjAdmin
 				$pjServiceModel->where('t1.status', $_GET['status']);
 			}
 			
-			$column = 'title';
+			$column = 'sort_order';
 			$direction = 'ASC';
-			$allowed_columns = array('title', 'category', 'price', 'duration', 'cnt_bookings', 'status');
+			$allowed_columns = array('sort_order', 'title', 'category', 'price', 'duration', 'cnt_bookings', 'status');
 			if (isset($_GET['direction']) && isset($_GET['column']) && in_array($_GET['column'], $allowed_columns) && in_array(strtoupper($_GET['direction']), array('ASC', 'DESC')))
 			{
 				$column = $_GET['column'];
@@ -231,7 +242,7 @@ class pjAdminServices extends pjAdmin
 			
 			$data = $pjServiceModel
 				->select("t1.*, t2.content AS title, t4.content AS category, (SELECT COUNT(TBS.booking_id) FROM `".pjBookingServiceModel::factory()->getTable()."` AS `TBS` WHERE `TBS`.service_id=t1.id) AS cnt_bookings")
-				->orderBy("$column $direction")
+				->orderBy(($column == 'sort_order' ? 't1.sort_order' : $column) . " $direction" . ($column == 'sort_order' ? ', title ASC' : ''))
 				->limit($rowCount, $offset)
 				->findAll()
 				->getData();
@@ -267,6 +278,10 @@ class pjAdminServices extends pjAdmin
 		if ($this->isXHR())
 		{
 			$pjServiceModel = pjServiceModel::factory();
+			if ($_POST['column'] == 'sort_order' && !ctype_digit(trim((string) $_POST['value'])))
+			{
+				exit;
+			}
 			if (!in_array($_POST['column'], $pjServiceModel->getI18n()))
 			{
 				$pjServiceModel->where('id', $_GET['id'])->limit(1)->modifyAll(array($_POST['column'] => $_POST['value']));

@@ -194,18 +194,19 @@ function pjTrimOnBlur($forms) {
 				buttons: [{type: "edit", url: "index.php?controller=pjAdminServices&action=pjActionUpdate&id={:id}"},
 				          {type: "delete", url: "index.php?controller=pjAdminServices&action=pjActionDeleteService&id={:id}"}
 				          ],
-				columns: [{text: myLabel.title, type: "text", sortable: true, editable: true, width: 170, editableWidth: 150},
-          {text: myLabel.category, type: "text", sortable: true, editable: false, width: 110},
-          {text: myLabel.price, type: "text", sortable: true, editable: false, width: 70},
-          {text: myLabel.duration, type: "text", sortable: true, editable: false, width: 90},
-          {text: myLabel.bookings, type: "text", sortable: true, editable: false, width: 70, align: 'center', renderer: formatBookings},
-          {text: myLabel.status, type: "select", sortable: true, editable: true, width: 90, editableWidth: 76, options: [
-                                                                                             {label: myLabel.active, value: "T"},
-                                                                                             {label: myLabel.inactive, value: "F"}
-                                                                                             ], applyClass: "pj-status"}],
+				columns: [{text: myLabel.order, type: "text", sortable: true, editable: true, width: 60, editableWidth: 44},
+				          {text: myLabel.title, type: "text", sortable: true, editable: true, width: 150, editableWidth: 130},
+				          {text: myLabel.category, type: "text", sortable: true, editable: false, width: 110},
+				          {text: myLabel.price, type: "text", sortable: true, editable: false, width: 70},
+				          {text: myLabel.duration, type: "text", sortable: true, editable: false, width: 90},
+				          {text: myLabel.bookings, type: "text", sortable: true, editable: false, width: 70, align: 'center', renderer: formatBookings},
+				          {text: myLabel.status, type: "select", sortable: true, editable: true, width: 90, editableWidth: 76, options: [
+			                                                                                     {label: myLabel.active, value: "T"}, 
+			                                                                                     {label: myLabel.inactive, value: "F"}
+			                                                                                     ], applyClass: "pj-status"}],
 				dataUrl: "index.php?controller=pjAdminServices&action=pjActionGetService" + pjGrid.queryString,
 				dataType: "json",
-				fields: ['title', 'category', 'price', 'duration', 'cnt_bookings', 'status'],
+				fields: ['sort_order', 'title', 'category', 'price', 'duration', 'cnt_bookings', 'status'],
 				paginator: {
 					actions: [
 					   {text: myLabel.delete_selected, url: "index.php?controller=pjAdminServices&action=pjActionDeleteServiceBulk", render: true, confirmation: myLabel.delete_confirmation}
@@ -237,7 +238,7 @@ function pjTrimOnBlur($forms) {
 			});
 			$("#filter_category_id").val("");
 			$grid.datagrid("option", "cache", cache);
-			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "title", "ASC", content.page, content.rowCount);
+			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "sort_order", "ASC", content.page, content.rowCount);
 			return false;
 		}).on("click", ".btn-filter", function (e) {
 			if (e && e.preventDefault) {
@@ -252,7 +253,7 @@ function pjTrimOnBlur($forms) {
 			obj[$this.data("column")] = $this.data("value");
 			$.extend(cache, obj);
 			$grid.datagrid("option", "cache", cache);
-			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "title", "ASC", content.page, content.rowCount);
+			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "sort_order", "ASC", content.page, content.rowCount);
 			return false;
 		}).on("submit", ".frm-filter", function (e) {
 			if (e && e.preventDefault) {
@@ -265,7 +266,7 @@ function pjTrimOnBlur($forms) {
 				q: $this.find("input[name='q']").val()
 			});
 			$grid.datagrid("option", "cache", cache);
-			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "title", "ASC", content.page, content.rowCount);
+			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "sort_order", "ASC", content.page, content.rowCount);
 			return false;
 		}).on("change", "#filter_category_id", function (e) {
 			var content = $grid.datagrid("option", "content"),
@@ -274,7 +275,7 @@ function pjTrimOnBlur($forms) {
 				category_id: $(this).val()
 			});
 			$grid.datagrid("option", "cache", cache);
-			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "title", "ASC", content.page, content.rowCount);
+			$grid.datagrid("load", "index.php?controller=pjAdminServices&action=pjActionGetService", "sort_order", "ASC", content.page, content.rowCount);
 		}).on("click", ".pj-delete-image", function (e) {
 			if (e && e.preventDefault) {
 				e.preventDefault();

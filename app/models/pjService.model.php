@@ -13,6 +13,7 @@ class pjServiceModel extends pjAppModel
 	protected $schema = array(
 		array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
 		array('name' => 'category_id', 'type' => 'int', 'default' => ':NULL'),
+		array('name' => 'sort_order', 'type' => 'int', 'default' => 0),
 		array('name' => 'price', 'type' => 'decimal', 'default' => ':NULL'),
 		array('name' => 'duration', 'type' => 'int', 'default' => ':NULL'),
 		array('name' => 'status', 'type' => 'enum', 'default' => 'T')
