@@ -234,15 +234,68 @@ class pjFrontEnd extends pjFront
 				$this->_unset('service_id');
 				$this->_unset('duration');
 			}
+			if($this->_is('extra_id'))
+			{
+				$this->_unset('extra_id');
+			}
 			if(isset($_POST['service_id']) && is_array($_POST['service_id']) && count($_POST['service_id']) > 0)
 			{
-				$this->_set('service_id', $_POST['service_id']);
-				$total_duration = 0;
-				foreach($_POST['service_id'] as $service_id => $duration)
+				// only existing, active services are kept; the duration comes from the database
+				$id_arr = array();
+				foreach(array_keys($_POST['service_id']) as $service_id)
 				{
-					$total_duration += $duration;
+					if(ctype_digit((string) $service_id) && (int) $service_id > 0)
+					{
+						$id_arr[] = (int) $service_id;
+					}
 				}
-				$this->_set('duration', $total_duration);
+				$valid_services = array();
+				$total_duration = 0;
+				if(!empty($id_arr))
+				{
+					$service_arr = pjServiceModel::factory()->where('t1.status', 'T')->whereIn('t1.id', $id_arr)->findAll()->getData();
+					foreach($service_arr as $service)
+					{
+						$valid_services[$service['id']] = $service['duration'];
+						$total_duration += (int) $service['duration'];
+					}
+				}
+				if(!empty($valid_services))
+				{
+					$this->_set('service_id', $valid_services);
+
+					// extras: must be active and offered with at least one of the selected services
+					if(isset($_POST['extra_id']) && is_array($_POST['extra_id']) && count($_POST['extra_id']) > 0)
+					{
+						$extra_id_arr = array();
+						foreach(array_keys($_POST['extra_id']) as $extra_id)
+						{
+							if(ctype_digit((string) $extra_id) && (int) $extra_id > 0)
+							{
+								$extra_id_arr[] = (int) $extra_id;
+							}
+						}
+						if(!empty($extra_id_arr))
+						{
+							$extra_arr = pjExtraModel::factory()
+								->where('t1.status', 'T')
+								->whereIn('t1.id', $extra_id_arr)
+								->where("(t1.id IN (SELECT `TSE`.extra_id FROM `".pjServiceExtraModel::factory()->getTable()."` AS `TSE` WHERE `TSE`.service_id IN (".join(',', array_keys($valid_services)).")))")
+								->findAll()->getData();
+							$valid_extras = array();
+							foreach($extra_arr as $extra)
+							{
+								$valid_extras[$extra['id']] = $extra['duration'];
+								$total_duration += (int) $extra['duration'];
+							}
+							if(!empty($valid_extras))
+							{
+								$this->_set('extra_id', $valid_extras);
+							}
+						}
+					}
+					$this->_set('duration', $total_duration);
+				}
 			}
 				
 			pjAppController::jsonResponse(array('status' => 'OK', 'code' => 200, 'text' => ''));
@@ -370,10 +423,29 @@ class pjFrontEnd extends pjFront
 						->setAttributes(array(
 								'booking_id' => $id,
 								'service_id' => $service_id
-						))->insert();
-					}
-				}
-				$arr = $pjBookingModel->reset()->find($id)->getData();
+								))->insert();
+								}
+								}
+								if(isset($STORE['extra_id']) && count($STORE['extra_id']) > 0)
+								{
+								// title / price / duration are copied so the booking keeps what the customer agreed to
+								$extra_arr = pjExtraModel::factory()
+								->select('t1.*, t2.content AS title')
+								->join('pjMultiLang', "t2.model='pjExtra' AND t2.foreign_id=t1.id AND t2.field='title' AND t2.locale='".$this->getLocaleId()."'", 'left outer')
+								->whereIn('t1.id', array_keys($STORE['extra_id']))
+								->findAll()->getData();
+								foreach($extra_arr as $extra)
+								{
+								pjBookingExtraModel::factory()->setAttributes(array(
+								'booking_id' => $id,
+								'extra_id' => $extra['id'],
+								'title' => $extra['title'],
+								'price' => $extra['price'],
+								'duration' => $extra['duration']
+								))->insert();
+								}
+								}
+								$arr = $pjBookingModel->reset()->find($id)->getData();
 	
 				$pdata = array();
 				$pdata['booking_id'] = $id;

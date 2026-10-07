@@ -159,6 +159,13 @@ class pjAdminBookings extends pjAdmin
 				{
 					$service_arr[$v['booking_id']][] = pjSanitize::html($v['title']);
 				}	
+
+				// extras booked with the services
+				$temp_extra_arr = pjBookingExtraModel::factory()->whereIn('t1.booking_id', $booking_id_arr)->findAll()->getData();
+				foreach($temp_extra_arr as $k => $v)
+				{
+					$service_arr[$v['booking_id']][] = '+ ' . pjSanitize::html($v['title']);
+				}
 			}
 			
 			foreach($data as $k => $v)
@@ -235,6 +242,7 @@ class pjAdminBookings extends pjAdmin
 			if (pjBookingModel::factory()->setAttributes(array('id' => $_GET['id']))->erase()->getAffectedRows() == 1)
 			{
 				pjBookingServiceModel::factory()->where('booking_id', $_GET['id'])->eraseAll();
+				pjBookingExtraModel::factory()->where('booking_id', (int) $_GET['id'])->eraseAll();
 				pjBookingPaymentModel::factory()->where('booking_id', $_GET['id'])->eraseAll();
 				$response['code'] = 200;
 			} else {
@@ -255,6 +263,7 @@ class pjAdminBookings extends pjAdmin
 			{
 				pjBookingModel::factory()->whereIn('id', $_POST['record'])->eraseAll();
 				pjBookingServiceModel::factory()->whereIn('booking_id', $_POST['record'])->eraseAll();
+				pjBookingExtraModel::factory()->whereIn('booking_id', $_POST['record'])->eraseAll();
 				pjBookingPaymentModel::factory()->whereIn('booking_id', $_POST['record'])->eraseAll();
 			}
 		}
@@ -303,6 +312,96 @@ class pjAdminBookings extends pjAdmin
 	    }
 	}
 	
+	/**
+	 * Extras of the add / edit booking forms: the active extras plus the ones already booked
+	 * (a booked extra keeps the price / duration it was booked with).
+	 */
+	private function setExtraData($booking_id = 0)
+	{
+		$booked = array();
+		if ((int) $booking_id > 0)
+		{
+			foreach (pjBookingExtraModel::factory()->where('t1.booking_id', (int) $booking_id)->findAll()->getData() as $row)
+			{
+				$booked[(int) $row['extra_id']] = $row;
+			}
+		}
+		$extra_arr = array();
+		$rows = pjExtraModel::factory()
+			->select('t1.*, t2.content AS title')
+			->join('pjMultiLang', "t2.model='pjExtra' AND t2.foreign_id=t1.id AND t2.field='title' AND t2.locale='".$this->getLocaleId()."'", 'left outer')
+			->orderBy('title ASC')
+			->findAll()->getData();
+		foreach ($rows as $row)
+		{
+			if (isset($booked[(int) $row['id']]))
+			{
+				$row['title'] = $booked[(int) $row['id']]['title'];
+				$row['price'] = $booked[(int) $row['id']]['price'];
+				$row['duration'] = $booked[(int) $row['id']]['duration'];
+				$row['booked'] = true;
+				$extra_arr[] = $row;
+				unset($booked[(int) $row['id']]);
+			} elseif ($row['status'] == 'T') {
+				$row['booked'] = false;
+				$extra_arr[] = $row;
+			}
+		}
+		foreach ($booked as $row)
+		{
+			// the extra itself was deleted later on, the booking still keeps it
+			$extra_arr[] = array('id' => $row['extra_id'], 'title' => $row['title'], 'price' => $row['price'], 'duration' => $row['duration'], 'status' => 'T', 'booked' => true);
+		}
+		$this->set('extra_arr', $extra_arr);
+	}
+
+	/**
+	 * Replace the extras of a booking with the ticked ones. Extras that were already booked keep
+	 * their price / duration; newly ticked extras take the current ones.
+	 */
+	private function saveBookingExtras($booking_id)
+	{
+		$booking_id = (int) $booking_id;
+		$existing = array();
+		foreach (pjBookingExtraModel::factory()->where('t1.booking_id', $booking_id)->findAll()->getData() as $row)
+		{
+			$existing[(int) $row['extra_id']] = $row;
+		}
+		pjBookingExtraModel::factory()->where('booking_id', $booking_id)->eraseAll();
+		if (isset($_POST['extra_id']) && is_array($_POST['extra_id']))
+		{
+			foreach (array_keys($_POST['extra_id']) as $extra_id)
+			{
+				if (!ctype_digit((string) $extra_id) || (int) $extra_id <= 0)
+				{
+					continue;
+				}
+				$extra_id = (int) $extra_id;
+				if (isset($existing[$extra_id]))
+				{
+					$data = $existing[$extra_id];
+				} else {
+					$extra = pjExtraModel::factory()
+						->select('t1.*, t2.content AS title')
+						->join('pjMultiLang', "t2.model='pjExtra' AND t2.foreign_id=t1.id AND t2.field='title' AND t2.locale='".$this->getLocaleId()."'", 'left outer')
+						->find($extra_id)->getData();
+					if (empty($extra))
+					{
+						continue;
+					}
+					$data = $extra;
+				}
+				pjBookingExtraModel::factory()->setAttributes(array(
+					'booking_id' => $booking_id,
+					'extra_id' => $extra_id,
+					'title' => $data['title'],
+					'price' => $data['price'],
+					'duration' => $data['duration']
+				))->insert();
+			}
+		}
+	}
+
 	public function pjActionCreate()
 	{
 		$this->checkLogin();
@@ -336,9 +435,10 @@ class pjAdminBookings extends pjAdmin
 							$service_data['service_id'] = $service_id;
 												
 							$pjBookingServiceModel->reset()->setAttributes($service_data)->insert();
-						}
-					}
-					$err = 'AR03';
+								}
+							}
+							$this->saveBookingExtras($id);
+							$err = 'AR03';
 				}else{
 					$err = 'AR04';
 				}
@@ -376,6 +476,7 @@ class pjAdminBookings extends pjAdmin
 				$this->set('date_arr', $date_arr);
 				
 				$this->set('service_arr', $service_arr);
+				$this->setExtraData();
 				$this->set('country_arr', $country_arr);
 				
 				$this->set('selected_date_iso', $selected_date_iso);
@@ -430,6 +531,7 @@ class pjAdminBookings extends pjAdmin
 				
 				$pjBookingServiceModel = pjBookingServiceModel::factory();
 				$pjBookingServiceModel->where('booking_id', $_POST['id'])->eraseAll();
+				$this->saveBookingExtras($_POST['id']);
 				
 				if(isset($_POST['service_id']) && is_array($_POST['service_id']) && count($_POST['service_id']) > 0)
 				{
@@ -488,6 +590,7 @@ class pjAdminBookings extends pjAdmin
 				$this->set('date_arr', $date_arr);
 				
 				$this->set('service_arr', $service_arr);
+				$this->setExtraData($booking_id);
 				$this->set('country_arr', $country_arr);
 				$this->set('service_id_arr', $service_id_arr);
 				
@@ -705,6 +808,12 @@ class pjAdminBookings extends pjAdmin
 					{
 						$service_arr[$v['booking_id']][] = pjSanitize::html($v['title']);
 					}
+					// extras booked with the services
+					$temp_extra_arr = pjBookingExtraModel::factory()->findAll()->getData();
+					foreach($temp_extra_arr as $k => $v)
+					{
+						$service_arr[$v['booking_id']][] = '+ ' . pjSanitize::html($v['title']);
+					}
 				}
 				
 				foreach($_arr as $v)
@@ -908,6 +1017,12 @@ class pjAdminBookings extends pjAdmin
 				{
 					$service_arr[$v['booking_id']][] = pjSanitize::html($v['title']);
 				}
+				// extras booked with the services
+				$temp_extra_arr = pjBookingExtraModel::factory()->findAll()->getData();
+				foreach($temp_extra_arr as $k => $v)
+				{
+					$service_arr[$v['booking_id']][] = '+ ' . pjSanitize::html($v['title']);
+				}
 			}
 			
 			foreach($_arr as $v)
@@ -942,6 +1057,12 @@ class pjAdminBookings extends pjAdmin
 				foreach($temp_service_arr as $k => $v)
 				{
 					$service_arr[$v['booking_id']][] = pjSanitize::html($v['title']);
+				}
+				// extras booked with the services
+				$temp_extra_arr = pjBookingExtraModel::factory()->findAll()->getData();
+				foreach($temp_extra_arr as $k => $v)
+				{
+					$service_arr[$v['booking_id']][] = '+ ' . pjSanitize::html($v['title']);
 				}
 			}
 			foreach($arr as $k => $v)

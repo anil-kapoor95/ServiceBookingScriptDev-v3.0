@@ -30,7 +30,67 @@ class pjAdminServices extends pjAdmin
 		{
 			return false;
 		}
+		// a category is mandatory and must exist
+		if (!isset($_POST['category_id']) || !ctype_digit((string) $_POST['category_id']) || (int) $_POST['category_id'] <= 0
+			|| !pjServiceCategoryModel::factory()->find((int) $_POST['category_id'])->getData())
+		{
+			return false;
+		}
 		return true;
+	}
+
+	/**
+	 * Categories and extras offered on the add / edit service form.
+	 */
+	private function setCatalogData($service_id = 0)
+	{
+		$category_arr = pjServiceCategoryModel::factory()
+			->select('t1.*, t2.content AS title')
+			->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjServiceCategory' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
+			->orderBy('title ASC')->findAll()->getData();
+		$extra_arr = pjExtraModel::factory()
+			->select('t1.*, t2.content AS title')
+			->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjExtra' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
+			->orderBy('title ASC')->findAll()->getData();
+		$service_extra_id_arr = array();
+		if ((int) $service_id > 0)
+		{
+			$rows = pjServiceExtraModel::factory()->where('service_id', (int) $service_id)->findAll()->getData();
+			foreach ($rows as $row)
+			{
+				$service_extra_id_arr[] = (int) $row['extra_id'];
+			}
+		}
+		$this->set('category_arr', $category_arr);
+		$this->set('extra_arr', $extra_arr);
+		$this->set('service_extra_id_arr', $service_extra_id_arr);
+	}
+
+	/**
+	 * Replace the extras linked to a service with the ticked ones (only existing extras are kept).
+	 */
+	private function saveServiceExtras($service_id)
+	{
+		pjServiceExtraModel::factory()->where('service_id', (int) $service_id)->eraseAll();
+		if (isset($_POST['extra_id']) && is_array($_POST['extra_id']) && count($_POST['extra_id']) > 0)
+		{
+			$ids = array();
+			foreach ($_POST['extra_id'] as $extra_id)
+			{
+				if (ctype_digit((string) $extra_id) && (int) $extra_id > 0)
+				{
+					$ids[(int) $extra_id] = (int) $extra_id;
+				}
+			}
+			if (!empty($ids))
+			{
+				$valid = pjExtraModel::factory()->whereIn('t1.id', array_values($ids))->findAll()->getDataPair(null, 'id');
+				foreach ($valid as $extra_id)
+				{
+					pjServiceExtraModel::factory()->setAttributes(array('service_id' => (int) $service_id, 'extra_id' => (int) $extra_id))->insert();
+				}
+			}
+		}
 	}
 
 	public function pjActionCreate()
@@ -56,6 +116,7 @@ class pjAdminServices extends pjAdmin
 					{
 						pjMultiLangModel::factory()->saveMultiLang($_POST['i18n'], $id, 'pjService', 'data');
 					}
+					$this->saveServiceExtras($id);
 				} else {
 					$err = 'AS04';
 				}
@@ -73,6 +134,7 @@ class pjAdminServices extends pjAdmin
 				}
 				$this->set('lp_arr', $locale_arr);
 				$this->set('locale_str', pjAppController::jsonEncode($lp_arr));
+				$this->setCatalogData();
 		
 				$this->appendJs('jquery.validate.min.js', PJ_THIRD_PARTY_PATH . 'validate/');
 				$this->appendJs('jquery.multilang.js', PJ_FRAMEWORK_LIBS_PATH . 'pj/js/');
@@ -96,6 +158,7 @@ class pjAdminServices extends pjAdmin
 			if ($pjServiceModel->reset()->setAttributes(array('id' => $_GET['id']))->erase()->getAffectedRows() == 1)
 			{
 				pjMultiLangModel::factory()->where('model', 'pjService')->where('foreign_id', $_GET['id'])->eraseAll();
+				pjServiceExtraModel::factory()->where('service_id', (int) $_GET['id'])->eraseAll();
 				$response['code'] = 200;
 			} else {
 				$response['code'] = 100;
@@ -116,6 +179,7 @@ class pjAdminServices extends pjAdmin
 				$pjServiceModel = pjServiceModel::factory();
 				$pjServiceModel->reset()->whereIn('id', $_POST['record'])->eraseAll();
 				pjMultiLangModel::factory()->where('model', 'pjService')->whereIn('foreign_id', $_POST['record'])->eraseAll();
+			pjServiceExtraModel::factory()->whereIn('service_id', $_POST['record'])->eraseAll();
 			}
 		}
 		exit;
@@ -129,8 +193,13 @@ class pjAdminServices extends pjAdmin
 		{
 			$pjServiceModel = pjServiceModel::factory()
 				->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjService' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
-				->join('pjMultiLang', "t3.foreign_id = t1.id AND t3.model = 'pjService' AND t3.locale = '".$this->getLocaleId()."' AND t3.field = 'description'", 'left');
+				->join('pjMultiLang', "t3.foreign_id = t1.id AND t3.model = 'pjService' AND t3.locale = '".$this->getLocaleId()."' AND t3.field = 'description'", 'left')
+				->join('pjMultiLang', "t4.foreign_id = t1.category_id AND t4.model = 'pjServiceCategory' AND t4.locale = '".$this->getLocaleId()."' AND t4.field = 'title'", 'left');
 			
+			if (isset($_GET['category_id']) && (int) $_GET['category_id'] > 0)
+			{
+				$pjServiceModel->where('t1.category_id', (int) $_GET['category_id']);
+			}
 			if (isset($_GET['q']) && !empty($_GET['q']))
 			{
 				$q = pjObject::escapeString($_GET['q']);
@@ -143,7 +212,7 @@ class pjAdminServices extends pjAdmin
 			
 			$column = 'title';
 			$direction = 'ASC';
-			$allowed_columns = array('title', 'price', 'duration', 'cnt_bookings', 'status');
+			$allowed_columns = array('title', 'category', 'price', 'duration', 'cnt_bookings', 'status');
 			if (isset($_GET['direction']) && isset($_GET['column']) && in_array($_GET['column'], $allowed_columns) && in_array(strtoupper($_GET['direction']), array('ASC', 'DESC')))
 			{
 				$column = $_GET['column'];
@@ -161,7 +230,7 @@ class pjAdminServices extends pjAdmin
 			}
 			
 			$data = $pjServiceModel
-				->select("t1.*, t2.content AS title, (SELECT COUNT(TBS.booking_id) FROM `".pjBookingServiceModel::factory()->getTable()."` AS `TBS` WHERE `TBS`.service_id=t1.id) AS cnt_bookings")
+				->select("t1.*, t2.content AS title, t4.content AS category, (SELECT COUNT(TBS.booking_id) FROM `".pjBookingServiceModel::factory()->getTable()."` AS `TBS` WHERE `TBS`.service_id=t1.id) AS cnt_bookings")
 				->orderBy("$column $direction")
 				->limit($rowCount, $offset)
 				->findAll()
@@ -238,6 +307,7 @@ class pjAdminServices extends pjAdmin
 				{
 					pjMultiLangModel::factory()->updateMultiLang($_POST['i18n'], $_POST['id'], 'pjService', 'data');
 				}
+				$this->saveServiceExtras($_POST['id']);
 
 				pjUtil::redirect(PJ_INSTALL_URL . "index.php?controller=pjAdminServices&action=pjActionIndex&err=$err");
 				
@@ -262,6 +332,7 @@ class pjAdminServices extends pjAdmin
 				}
 				$this->set('lp_arr', $locale_arr);
 				$this->set('locale_str', pjAppController::jsonEncode($lp_arr));
+				$this->setCatalogData($arr['id']);
 				
 				$this->appendJs('jquery.validate.min.js', PJ_THIRD_PARTY_PATH . 'validate/');
 				$this->appendJs('jquery.multilang.js', PJ_FRAMEWORK_LIBS_PATH . 'pj/js/');

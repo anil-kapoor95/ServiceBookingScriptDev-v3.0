@@ -418,6 +418,8 @@ function pjTrimOnBlur($forms) {
 				e.preventDefault();
 			}
 			$dialogCancellation.data('id', $(this).attr('data-id')).dialog('open');
+		}).on("click", ".pjSbsExtraCheckbox", function (e) {
+			calculatePrice();
 		}).on("click", ".pjSbsServiceCheckbox", function (e) {
 			var checked = false;
 			$('.pjSbsServiceCheckbox').each(function(e){
@@ -656,7 +658,7 @@ function pjTrimOnBlur($forms) {
 			var deposit = 0;
 			var duration = 0;
 			
-			$('.pjSbsServiceCheckbox').each(function(e){
+			$('.pjSbsServiceCheckbox, .pjSbsExtraCheckbox').each(function(e){
 				if($(this).is(':checked'))
 				{
 					subtotal += parseFloat($(this).val());

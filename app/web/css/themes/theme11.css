@@ -91,6 +91,19 @@
 
 #pjWrapper .pjSbs-services-footer { background-color: #4a2a22; border-radius: 0 0 16px 16px; }
 #pjWrapper .pjSbs-services-footer-title { color: #c7cac6; }
+/* category filter chips + extras heading + sticky bar */
+#pjWrapper .pjSbs-categories { padding: 4px 20px 16px; }
+#pjWrapper .pjSbs-categories-wrap { background-color: transparent; }
+#pjWrapper .pjSbs-cat-nav { top: calc(50% - 6px); background-color: #fff; border-color: #f0d3c6; color: #ae3c22; box-shadow: 0 3px 10px rgba(110, 60, 45, 0.25); }
+#pjWrapper .pjSbs-cat-nav:hover { background-color: #fdf1ec; border-color: #e8836b; }
+/* five-step tracker (Extras step): keep all steps on one row */
+#pjWrapper .pjSbs11-steps-5 { gap: 6px; padding-left: 12px; padding-right: 12px; }
+#pjWrapper .pjSbs11-steps-5 .pjSbs11-step-label { font-size: 11px; letter-spacing: 0; }
+#pjWrapper .pjSbs-category.btn-default { background-color: #fff; border-color: #f0d3c6; color: #7b5b51; box-shadow: none; }
+#pjWrapper .pjSbs-category.btn-default:hover { background-color: #fff; border-color: #e8836b; color: #ae3c22; }
+#pjWrapper .pjSbs-category.btn.btn-primary { box-shadow: 0 4px 10px rgba(201, 78, 51, 0.3); }
+#pjWrapper .pjSbs-extras-title { background-color: transparent; color: #4a2a22; font-size: 20px; padding: 22px 20px 10px; }
+#pjWrapper .pjSbs-services-sticky .pjSbs-services-footer.pjSbs-footer-sticky { border-radius: 16px; box-shadow: 0 -8px 24px rgba(74, 42, 34, 0.25); }
 
 /* ---- Date picker ----
    White card with a soft shadow instead of a flat tan block; the selected
@@ -261,4 +274,6 @@
 
 @media (max-width: 639px) {
 	#pjWrapper .pjSbs11-steps { flex-wrap: wrap; }
+	#pjWrapper .pjSbs11-steps-5 { flex-wrap: nowrap; }
+	#pjWrapper .pjSbs11-steps-5 .pjSbs11-step-label { font-size: 9px; }
 }

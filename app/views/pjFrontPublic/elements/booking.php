@@ -50,8 +50,43 @@ $selected_date_ts = strtotime($selected_date_iso . ' ' . $selected_hour_iso . ':
 		</div><!-- /.pjSbs-services-prices-row -->
 		<?php
 	} 
+
+	// extras picked with the services
+	$extra_arr = isset($tpl['extra_arr']) ? $tpl['extra_arr'] : array();
+	foreach($extra_arr as $v)
+	{
+		$temp_arr = pjUtil::convertToHoursMins((int) $v['duration']);
+		$duration_arr = array();
+		if((int) $temp_arr['hours'] > 0)
+		{
+			$duration_arr[] = $temp_arr['hours']. ' ' . ($temp_arr['hours'] != 1 ? __('front_hours', true) : __('front_hour', true));
+		}
+		if((int) $temp_arr['minutes'] > 0)
+		{
+			$duration_arr[] = $temp_arr['minutes'] . ' '. ($temp_arr['minutes'] != 1 ? __('front_minutes', true) : __('front_minute', true));
+		}
+		?>
+		<div class="pjSbs-services-prices-row pjSbs-extras-row">
+			<div class="row">
+				<div class="col-xs-9">
+					<div class="pjSbs-service-title"><small><?php __('front_extra');?></small> <?php echo pjSanitize::html($v['title']);?></div><!-- /.pjSbs-service-title -->
+
+					<?php if(!empty($duration_arr)) { ?>
+					<div class="pjSbs-service-utilities">
+						<em><i class="glyphicon glyphicon-time"></i> <strong><?php __('front_duration');?>:</strong> <?php echo join(" " , $duration_arr);?></em>
+					</div>
+					<?php } ?>
+				</div><!-- /.col-sm-9 -->
+
+				<div class="col-xs-3">
+					<strong class="pjSbs-price"><?php echo pjUtil::formatCurrencySign($v['price'], $option_arr['o_currency']);?></strong>
+				</div><!-- /.col-sm-3 -->
+			</div><!-- /.row -->
+		</div><!-- /.pjSbs-services-prices-row -->
+		<?php
+	}
 	?>
-	
+
 	<div class="pjSbs-services-prices-row pjSbs-services-prices-total">
 		<div class="row">
 			<div class="col-xs-9">

@@ -340,6 +340,8 @@ span.left{
 .menu-preview{background: url(../img/backend/menu-preview.png) 0 -30px no-repeat}
 .menu-install{background: url(../img/backend/menu-install.png) 0 -30px no-repeat}
 .menu-logout{background: url(../img/backend/menu-logout.png) 0 -30px no-repeat}
+.menu-categories{background: url(../img/backend/menu-categories.png) 0 -30px no-repeat}
+.menu-extras{background: url(../img/backend/menu-extras.png) 0 -30px no-repeat}
 
 .menu-focus .menu-dashboard, .menu a:hover .menu-dashboard,
 .menu-focus .menu-bookings, .menu a:hover .menu-bookings,
@@ -349,6 +351,8 @@ span.left{
 .menu-focus .menu-users, .menu a:hover .menu-users,
 .menu-focus .menu-preview, .menu a:hover .menu-preview,
 .menu-focus .menu-install, .menu a:hover .menu-install,
+.menu-focus .menu-categories, .menu a:hover .menu-categories,
+.menu-focus .menu-extras, .menu a:hover .menu-extras,
 .menu-focus .menu-logout, .menu a:hover .menu-logout{
 	background-position: 0 0;
 }
@@ -395,7 +399,6 @@ span.left{
 	background-position: center center !important;
 }
 /* table */
-
 .table{
 	border-collapse: separate;
 	border-top: solid 1px #e5e2e2;
@@ -1068,3 +1071,8 @@ label.ui-state-active{
 .ui-timepicker-select{
 	width: 90px;
 }
+/* grids: edit and delete icons always stay side by side in one row */
+.pj-table td:last-child { white-space: nowrap; }
+.pj-table td:last-child a.pj-table-icon-edit,
+.pj-table td:last-child a.pj-table-icon-delete,
+.pj-table td:last-child a.pj-table-icon-copy { vertical-align: middle; }

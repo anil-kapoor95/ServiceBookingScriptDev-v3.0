@@ -4,17 +4,16 @@ if (!defined("ROOT_PATH"))
 	header("HTTP/1.1 403 Forbidden");
 	exit;
 }
-class pjServiceModel extends pjAppModel
+class pjExtraModel extends pjAppModel
 {
 	protected $primaryKey = 'id';
 	
-	protected $table = 'services';
+	protected $table = 'extras';
 	
 	protected $schema = array(
 		array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
-		array('name' => 'category_id', 'type' => 'int', 'default' => ':NULL'),
 		array('name' => 'price', 'type' => 'decimal', 'default' => ':NULL'),
-		array('name' => 'duration', 'type' => 'int', 'default' => ':NULL'),
+		array('name' => 'duration', 'type' => 'int', 'default' => '0'),
 		array('name' => 'status', 'type' => 'enum', 'default' => 'T')
 	);
 	
@@ -22,7 +21,7 @@ class pjServiceModel extends pjAppModel
 	
 	public static function factory($attr=array())
 	{
-		return new pjServiceModel($attr);
+		return new pjExtraModel($attr);
 	}
 }
 ?>

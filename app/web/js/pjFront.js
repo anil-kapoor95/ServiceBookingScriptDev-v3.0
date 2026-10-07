@@ -42,6 +42,7 @@
 		validate = (pjQ.$.fn.validate !== undefined),
 		routes = [
 		          	{pattern: /^#!\/loadServices$/, eventName: "loadServices"},
+		          	{pattern: /^#!\/loadExtras$/, eventName: "loadExtras"},
 		          	{pattern: /^#!\/loadDateTime$/, eventName: "loadDateTime"},
 					{pattern: /^#!\/loadCheckout$/, eventName: "loadCheckout"},
 		          	{pattern: /^#!\/loadPreview$/, eventName: "loadPreview"},
@@ -166,6 +167,15 @@
 					self.loadServices.call(self);
 				}
 				return false;
+			}).on("click.sbs", ".pjSbsBackToExtras", function (e) {
+				if (e && e.preventDefault) {
+					e.preventDefault();
+				}
+				if (!hashBang("#!/loadExtras")) 
+				{
+					self.loadExtras.call(self);
+				}
+				return false;
 			}).on("click.sbs", ".pjSbsBackToDateTime", function (e) {
 				if (e && e.preventDefault) {
 					e.preventDefault();
@@ -242,6 +252,8 @@
 			
 			pjQ.$(window).on("loadServices", this.$container, function (e) {
 				self.loadServices.call(self);
+			}).on("loadExtras", this.$container, function (e) {
+				self.loadExtras.call(self);
 			}).on("loadDateTime", this.$container, function (e) {
 				self.loadDateTime.call(self);
 			}).on("loadCheckout", this.$container, function (e) {
@@ -356,7 +368,11 @@
 		loadServices: function () {
 			var self = this,
 				index = this.opts.index,
-				params = {};
+				params = {},
+				// picking a service / extra re-renders the step: stay where the visitor is instead of jumping to the top
+				keepScroll = !!self.keepScroll,
+				scrollPos = pjQ.$(window).scrollTop();
+			self.keepScroll = false;
 			params.locale = this.opts.locale;
 			params.index = this.opts.index;
 			if(self.opts.session_id != '')
@@ -366,11 +382,16 @@
 			pjQ.$.get([this.opts.folder, "index.php?controller=pjFrontPublic&action=pjActionServices"].join(""), params).done(function (data) {
 				self.$container.html(data);
 				self.bindServices();
-				pjQ.$('html, body').animate({
-			        scrollTop: self.$container.offset().top
-			    }, 500);
+				if(keepScroll)
+				{
+					pjQ.$(window).scrollTop(scrollPos);
+				}else{
+					pjQ.$('html, body').animate({
+				        scrollTop: self.$container.offset().top
+				    }, 500);
+				}
 			}).fail(function () {
-				
+
 			});
 		},
 		bindServices: function(){
@@ -385,10 +406,72 @@
 				{
 					ajax_url += "&session_id=" + self.opts.session_id;
 				}
+				/* category filter: show only the services of the chosen category (selected services stay selected) */
+				var applyCategory = function () {
+					var cat = parseInt(self.categoryFilter, 10) || 0;
+					$form.find('.pjSbs-category').removeClass('active btn-primary').addClass('btn-default').filter(function () {
+						return (parseInt(pjQ.$(this).attr('data-category'), 10) || 0) === cat;
+					}).removeClass('btn-default').addClass('active btn-primary');
+					$form.find('.pjSbs-service:not(.pjSbs-extra)').each(function () {
+						var show = cat === 0 || (parseInt(pjQ.$(this).attr('data-category'), 10) || 0) === cat;
+						pjQ.$(this).toggle(show);
+					});
+				};
+				if($form.find('.pjSbs-category').length > 0)
+				{
+					/* chip carousel: arrows appear only when the chips do not fit on one line */
+					var $wrap = $form.find('.pjSbs-categories-wrap'),
+						$cats = $form.find('.pjSbs-categories'),
+						updateCatEnds = function () {
+							var el = $cats.get(0);
+							if (!el) { return; }
+							var max = el.scrollWidth - el.clientWidth;
+							$wrap.toggleClass('pjSbs-cat-at-start', el.scrollLeft <= 2)
+								.toggleClass('pjSbs-cat-at-end', el.scrollLeft >= max - 2);
+						},
+						updateCatNav = function () {
+							var el = $cats.get(0);
+							if (!el) { return; }
+							// measure without the arrow gutters, then apply them only if the chips really overflow
+							var left = el.scrollLeft;
+							$wrap.removeClass('pjSbs-cat-scrollable');
+							$wrap.toggleClass('pjSbs-cat-scrollable', el.scrollWidth - el.clientWidth > 2);
+							el.scrollLeft = left;
+							updateCatEnds();
+						};
+					$wrap.find('.pjSbs-cat-prev').on('click', function (e) {
+						e.preventDefault();
+						$cats.get(0).scrollLeft -= Math.max(120, $cats.get(0).clientWidth * 0.7);
+						return false;
+					});
+					$wrap.find('.pjSbs-cat-next').on('click', function (e) {
+						e.preventDefault();
+						$cats.get(0).scrollLeft += Math.max(120, $cats.get(0).clientWidth * 0.7);
+						return false;
+					});
+					$cats.on('scroll', updateCatEnds);
+					pjQ.$(window).off('resize.sbsCat').on('resize.sbsCat', updateCatNav);
+					updateCatNav();
+					setTimeout(updateCatNav, 300);
+					// bring the active chip into view (e.g. after the list re-renders)
+					setTimeout(function () {
+						var act = $cats.find('.pjSbs-category.active').get(0), box = $cats.get(0);
+						if (act && box) {
+							box.scrollLeft = Math.max(0, act.offsetLeft - (box.clientWidth - act.offsetWidth) / 2);
+						}
+					}, 0);
+					pjQ.$('.pjSbs-category').on('click', function(e){
+						e.preventDefault();
+						self.categoryFilter = parseInt(pjQ.$(this).attr('data-category'), 10) || 0;
+						applyCategory();
+						return false;
+					});
+					applyCategory();
+				}
 				pjQ.$('.pjSbs-service').on('click', function(e){
 					e.stopPropagation();
 					e.preventDefault();
-					
+
 					pjQ.$(this).toggleClass('active');
 					if(pjQ.$(this).hasClass('active'))
 					{
@@ -398,6 +481,7 @@
 					}
 					self.disableButtons.call(self);
 					pjQ.$.post(ajax_url, $form.serialize()).done(function (data) {
+						self.keepScroll = true;
 						if (!hashBang("#!/loadServices")) 
 						{
 							self.loadServices.call(self);
@@ -409,12 +493,98 @@
 				$form.validate({
 					submitHandler: function (form) {
 						self.disableButtons.call(self);
-						if (!hashBang("#!/loadDateTime")) 
+						if ($form.attr('data-has-extras') == '1')
 						{
-							self.loadDateTime.call(self);
+							// the selected services offer extras: choose them on their own step first
+							if (!hashBang("#!/loadExtras")) 
+							{
+								self.loadExtras.call(self);
+							}
+						}else{
+							if (!hashBang("#!/loadDateTime")) 
+							{
+								self.loadDateTime.call(self);
+							}
 						}
 						return false;
 					}
+				});
+			}
+		},
+		loadExtras: function () {
+			var self = this,
+				params = {},
+				// ticking an extra re-renders the step: stay where the visitor is
+				keepScroll = !!self.keepScroll,
+				scrollPos = pjQ.$(window).scrollTop();
+			self.keepScroll = false;
+			params.locale = this.opts.locale;
+			params.index = this.opts.index;
+			if(self.opts.session_id != '')
+			{
+				params.session_id = self.opts.session_id;
+			}
+			pjQ.$.get([this.opts.folder, "index.php?controller=pjFrontPublic&action=pjActionExtras"].join(""), params).done(function (data) {
+				if (data.code != undefined && data.status == 'ERR') {
+					if (!hashBang("#!/loadServices")) 
+					{
+						self.loadServices.call(self);
+					}
+				}else{
+					self.$container.html(data);
+					self.bindExtras.call(self);
+					if(keepScroll)
+					{
+						pjQ.$(window).scrollTop(scrollPos);
+					}else{
+						pjQ.$('html, body').animate({
+					        scrollTop: self.$container.offset().top
+					    }, 500);
+					}
+				}
+			}).fail(function () {
+
+			});
+		},
+		bindExtras: function(){
+			var self = this,
+				index = this.opts.index;
+
+			var $form = pjQ.$('#pjSbsExtrasForm_' + index);
+			if($form.length > 0)
+			{
+				var ajax_url = [self.opts.folder, "index.php?controller=pjFrontEnd&action=pjActionAddService"].join("");
+				if(self.opts.session_id != '')
+				{
+					ajax_url += "&session_id=" + self.opts.session_id;
+				}
+				$form.find('.pjSbs-extra').on('click', function(e){
+					e.stopPropagation();
+					e.preventDefault();
+
+					pjQ.$(this).toggleClass('active');
+					if(pjQ.$(this).hasClass('active'))
+					{
+						pjQ.$(this).find('input:checkbox').attr('checked', 'checked');
+					}else{
+						pjQ.$(this).find('input:checkbox').removeAttr('checked');
+					}
+					self.disableButtons.call(self);
+					pjQ.$.post(ajax_url, $form.serialize()).done(function (data) {
+						self.keepScroll = true;
+						self.loadExtras.call(self);
+					}).fail(function () {
+						self.enableButtons.call(self);
+					});
+				});
+				$form.on('submit', function (e) {
+					e.preventDefault();
+					self.disableButtons.call(self);
+					if (!hashBang("#!/loadDateTime")) 
+					{
+						self.loadDateTime.call(self);
+					}
+					return false;
 				});
 			}
 		},

@@ -52,6 +52,7 @@ if (isset($tpl['status']))
 				<?php
 			}
 			?>
+			<?php include dirname(__FILE__) . '/category_extras.php'; ?>
 			<p>
 				<label class="title"><?php __('lblPrice'); ?></label>
 				<span class="pj-form-field-custom pj-form-field-custom-before">

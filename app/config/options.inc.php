@@ -50,7 +50,7 @@ if (!defined("PJ_IMG_PATH")) define("PJ_IMG_PATH", "app/web/img/");
 if (!defined("PJ_JS_PATH")) define("PJ_JS_PATH", "app/web/js/");
 if (!defined("PJ_UPLOAD_PATH")) define("PJ_UPLOAD_PATH", "app/web/upload/");
 
-if (!defined("PJ_SCRIPT_VERSION")) define("PJ_SCRIPT_VERSION", "2.2");
+if (!defined("PJ_SCRIPT_VERSION")) define("PJ_SCRIPT_VERSION", "3.0");
 if (!defined("PJ_SCRIPT_ID")) define("PJ_SCRIPT_ID", "249");
 if (!defined("PJ_SCRIPT_BUILD")) define("PJ_SCRIPT_BUILD", "2.0.0");
 if (!defined("PJ_SCRIPT_PREFIX")) define("PJ_SCRIPT_PREFIX", "sbs_");

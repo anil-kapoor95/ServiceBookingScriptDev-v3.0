@@ -11,48 +11,32 @@ if (isset($tpl['status']))
 } else {
 	if (isset($_GET['err']))
 	{
-		$titles = __('error_titles', true);
-		$bodies = __('error_bodies', true);
-		$bodies_text = str_replace("{SIZE}", ini_get('post_max_size'), @$bodies[$_GET['err']]);
-		pjUtil::printNotice(@$titles[$_GET['err']], $bodies_text);
+		$msg = array(
+			'AC03' => array('infoCategoryAddedTitle', 'infoCategoryAddedDesc'),
+			'AC01' => array('infoCategoryUpdatedTitle', 'infoCategoryUpdatedDesc'),
+			'AC04' => array('infoCategoryFailedTitle', 'infoCategoryFailedDesc'),
+			'AC08' => array('infoCategoryFailedTitle', 'infoCategoryFailedDesc')
+		);
+		if (isset($msg[$_GET['err']]))
+		{
+			pjUtil::printNotice(__($msg[$_GET['err']][0], true, false), __($msg[$_GET['err']][1], true, false));
+		}
 	}
 	$filter = __('filter', true, false);
-	
-	pjUtil::printNotice(__('infoServicesTitle', true, false), __('infoServicesDesc', true, false));
+
+	pjUtil::printNotice(__('infoCategoriesTitle', true, false), __('infoCategoriesDesc', true, false));
 	?>
-	
+
 	<div class="b10">
 		<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get" class="float_left pj-form r10">
-			<input type="hidden" name="controller" value="pjAdminServices" />
+			<input type="hidden" name="controller" value="pjAdminCategories" />
 			<input type="hidden" name="action" value="pjActionCreate" />
-			<input type="submit" class="pj-button" value="<?php __('btnAddService'); ?>" />
+			<input type="submit" class="pj-button" value="<?php __('btnAddCategory'); ?>" />
 		</form>
 		<form action="" method="get" class="float_left pj-form frm-filter">
 			<input type="text" name="q" class="pj-form-field pj-form-field-search w150" placeholder="<?php __('btnSearch'); ?>" />
 		</form>
-		<?php
-		$svc_categories = pjServiceCategoryModel::factory()
-			->select('t1.id, t2.content AS title')
-			->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjServiceCategory' AND t2.locale = '".$controller->getLocaleId()."' AND t2.field = 'title'", 'left')
-			->orderBy('title ASC')->findAll()->getData();
-		if (!empty($svc_categories))
-		{
-			?>
-			<form action="" method="get" class="float_left pj-form l10">
-				<select name="category_id" id="filter_category_id" class="pj-form-field w180">
-					<option value=""><?php __('lblAllCategories'); ?></option>
-					<?php foreach ($svc_categories as $svc_cat) { ?>
-					<option value="<?php echo (int) $svc_cat['id']; ?>"><?php echo pjSanitize::html($svc_cat['title']); ?></option>
-					<?php } ?>
-				</select>
-			</form>
-			<?php
-		}
-		?>
-		
-		<?php
-		$filter = __('filter', true);
-		?>
+
 		<div class="float_right t5">
 			<a href="#" class="pj-button btn-all"><?php __('lblAll'); ?></a>
 			<a href="#" class="pj-button btn-filter btn-status" data-column="status" data-value="T"><?php echo $filter['active']; ?></a>
@@ -60,24 +44,26 @@ if (isset($tpl['status']))
 		</div>
 		<br class="clear_both" />
 	</div>
-	
-	<div id="grid"></div>
-	
+
+	<div id="grid" data-entity="category"></div>
+
 	<script type="text/javascript">
 	var pjGrid = pjGrid || {};
 	pjGrid.queryString = "";
-	
+
 	var myLabel = myLabel || {};
 	myLabel.title = "<?php __('lblTitle'); ?>";
-	myLabel.category = "<?php __('lblCategory'); ?>";
 	myLabel.price = "<?php __('lblPrice'); ?>";
-	myLabel.bookings = "<?php __('lblBookings'); ?>";
 	myLabel.duration = "<?php __('lblDuration'); ?>";
+	myLabel.services = "<?php __('lblServicesCount'); ?>";
 	myLabel.status = "<?php __('lblStatus'); ?>";
 	myLabel.active = "<?php echo $filter['active']; ?>";
 	myLabel.inactive = "<?php echo $filter['inactive']; ?>";
 	myLabel.delete_selected = "<?php __('delete_selected'); ?>";
 	myLabel.delete_confirmation = "<?php __('delete_confirmation'); ?>";
+	myLabel.category_in_use = "<?php echo addslashes(__('msgCategoryInUse', true)); ?>";
+	myLabel.cannot_delete = "<?php echo addslashes(__('lblCannotDelete', true)); ?>";
+	myLabel.ok = "<?php echo addslashes(__('btnOk', true)); ?>";
 	</script>
 	<?php
 }

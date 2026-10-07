@@ -226,6 +226,7 @@ if (isset($tpl['status']))
 									?>
 								</tbody>
 							</table>
+							<?php include dirname(__FILE__) . '/extras_block.php'; ?>
 							<input type="hidden" id="hiddenValidateService" name="validate_service" value="1" class="required" data-msg-required="<?php __('lblPleaseSelectService');?>"/>
 							<div class="overflow">
 								<input type="submit" value="<?php __('btnSave'); ?>" class="pj-button" />

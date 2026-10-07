@@ -24,7 +24,7 @@ include_once dirname(__FILE__) . '/elements/steps.php';
 		<div class="pjSbs-services-head">
 			<div class="pjSbs-services-title"><?php __('front_date_time');?></div><!-- /.pjSbs-services-title -->
 			
-			<a href="#" class="pjSbs-btn-back pjSbsBackToServices"><span class="glyphicon glyphicon-share-alt"></span></a>
+			<a href="#" class="pjSbs-btn-back <?php echo !empty($tpl['has_extras']) ? 'pjSbsBackToExtras' : 'pjSbsBackToServices';?>"><span class="glyphicon glyphicon-share-alt"></span></a>
 		</div><!-- /.pjSbs-services-head -->
 		
 		<div class="pjSbs-services-body">

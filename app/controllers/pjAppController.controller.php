@@ -240,6 +240,7 @@ class pjAppController extends pjController
 		}
     }
     
+	
     public function isEditor()
     {
     	return $this->getRoleId() == 2;
@@ -415,6 +416,27 @@ class pjAppController extends pjController
 			
 			$service_arr[] = $v['title'] . ' ('.pjUtil::formatCurrencySign($v['price'], $option_arr['o_currency']) . ' | '.join(' ', $duration_arr).')';
 		}
+		// extras booked with the services are listed under them
+		$temp_extra_arr = pjBookingExtraModel::factory()->where('t1.booking_id', $booking_id)->findAll()->getData();
+		foreach($temp_extra_arr as $v)
+		{
+			$extra_meta = array(pjUtil::formatCurrencySign($v['price'], $option_arr['o_currency']));
+			if ((int) $v['duration'] > 0)
+			{
+				$temp_arr = pjUtil::convertToHoursMins((int) $v['duration']);
+				$duration_arr = array();
+				if((int) $temp_arr['hours'] > 0)
+				{
+					$duration_arr[] = $temp_arr['hours']. ' ' . ($temp_arr['hours'] != 1 ? __('front_hours', true) : __('front_hour', true));
+				}
+				if((int) $temp_arr['minutes'] > 0)
+				{
+					$duration_arr[] = $temp_arr['minutes'] . ' '. ($temp_arr['minutes'] != 1 ? __('front_minutes', true) : __('front_minute', true));
+				}
+				$extra_meta[] = join(' ', $duration_arr);
+			}
+			$service_arr[] = '+ ' . $v['title'] . ' ('.join(' | ', $extra_meta) . ')';
+		}
 		$services = join("<br/>", $service_arr);
 	
 		if (isset($data['c_country']) && !empty($data['c_country']))
@@ -502,7 +524,7 @@ class pjAppController extends pjController
 		return compact('search', 'replace');
 	}
 	
-	public function calculatePrices($service_id_arr, $option_arr)
+	public function calculatePrices($service_id_arr, $option_arr, $extra_id_arr = array())
 	{
 		$subtotal = 0;
 		$tax = 0;
@@ -513,6 +535,15 @@ class pjAppController extends pjController
 		foreach($arr as $k => $v)
 		{
 			$subtotal += (float) $v['price'];
+		}
+		// optional extras picked together with the services
+		if (!empty($extra_id_arr))
+		{
+			$extra_arr = pjExtraModel::factory()->whereIn('t1.id', $extra_id_arr)->findAll()->getData();
+			foreach($extra_arr as $v)
+			{
+				$subtotal += (float) $v['price'];
+			}
 		}
 		$tax = $subtotal * (float) $option_arr['o_tax_payment'] / 100;
 		$total = $subtotal + $tax;

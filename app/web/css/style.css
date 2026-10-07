@@ -58,6 +58,35 @@ html, body { height: 100%; }
 #pjWrapper .pjSbs-services-footer p { margin-bottom: 0; font-weight: normal; color: #fff; }
 #pjWrapper .pjSbs-services-footer .btn-primary { position: absolute; top: 26px; right: 20px; }
 
+/* ---- Services step: category filter, extras, sticky "Select date & time" bar ---- */
+/* one line of category chips; swipe, or use the arrows when they do not all fit */
+#pjWrapper .pjSbs-categories-wrap { position: relative; background-color: #fff; }
+#pjWrapper .pjSbs-categories { display: flex; flex-wrap: nowrap; gap: 8px; padding: 14px 20px; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
+#pjWrapper .pjSbs-categories::-webkit-scrollbar { display: none; }
+#pjWrapper .pjSbs-categories .pjSbs-category { flex: 0 0 auto; white-space: nowrap; }
+#pjWrapper .pjSbs-cat-nav { display: none; position: absolute; top: 50%; margin-top: -16px; z-index: 3; width: 32px; height: 32px; padding: 0; border: 1px solid #d9d9e0; border-radius: 50%; background-color: #fff; color: #43464a; font-size: 22px; line-height: 28px; text-align: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); }
+#pjWrapper .pjSbs-cat-nav:hover { background-color: #f4f4f7; }
+#pjWrapper .pjSbs-cat-prev { left: 6px; }
+#pjWrapper .pjSbs-cat-next { right: 6px; }
+/* when the chips do not fit, the arrows get their own gutters so they never cover a chip */
+#pjWrapper .pjSbs-categories-wrap.pjSbs-cat-scrollable { padding-left: 44px; padding-right: 44px; }
+#pjWrapper .pjSbs-categories-wrap.pjSbs-cat-scrollable .pjSbs-categories { padding-left: 2px; padding-right: 2px; }
+#pjWrapper .pjSbs-categories-wrap.pjSbs-cat-scrollable .pjSbs-cat-nav { display: block; }
+#pjWrapper .pjSbs-categories-wrap.pjSbs-cat-at-start .pjSbs-cat-prev,
+#pjWrapper .pjSbs-categories-wrap.pjSbs-cat-at-end .pjSbs-cat-next { opacity: 0.35; cursor: default; pointer-events: none; box-shadow: none; }
+@media (max-width: 479px) {
+	#pjWrapper .pjSbs-categories-wrap.pjSbs-cat-scrollable { padding-left: 36px; padding-right: 36px; }
+	#pjWrapper .pjSbs-cat-nav { width: 28px; height: 28px; margin-top: -14px; font-size: 20px; line-height: 24px; }
+	#pjWrapper .pjSbs-cat-prev { left: 4px; }
+	#pjWrapper .pjSbs-cat-next { right: 4px; }
+}
+#pjWrapper .pjSbs-category.btn { height: auto; margin: 0; border-width: 1px; border-style: solid; padding: 6px 16px; font-size: 14px; font-weight: 600; line-height: 1.4; border-radius: 20px; box-shadow: none; }
+#pjWrapper .pjSbs-extras-title { padding: 18px 20px 10px; font-size: 22px; font-weight: bold; color: #43464a; background-color: #fff; }
+/* the whole step scrolls with the page; the bar sticks to the bottom of the screen and never covers content */
+#pjWrapper .pjSbs-services-sticky { overflow: hidden; overflow: clip; }
+#pjWrapper .pjSbs-services-sticky .pjSbs-services-body { max-height: none; overflow: visible; }
+#pjWrapper .pjSbs-services-sticky .pjSbs-services-footer.pjSbs-footer-sticky { position: sticky; bottom: 0; left: auto; right: auto; box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.18); }
+
 #pjWrapper .btn-primary { height: 48px; border: 0; padding: 10px 25px 0; font-size: 22px; }
 #pjWrapper input.btn-primary { padding-top: 0; }
 
@@ -190,4 +219,9 @@ html, body { height: 100%; }
 	#pjWrapper .pjSbs-available-times { padding-bottom: 165px; }
 
 	#pjWrapper .pjSbs-service-last-child { margin-bottom: 178px; } 
+	/* compact sticky bar on phones so it does not take over the screen */
+	#pjWrapper .pjSbs-footer-sticky.pjSbs-services-footer { padding: 10px 15px; min-height: 0; }
+	#pjWrapper .pjSbs-footer-sticky .pjSbs-services-footer-title { font-size: 14px; padding-bottom: 2px; }
+	#pjWrapper .pjSbs-footer-sticky p { display: inline-block; padding-bottom: 8px; margin-right: 14px; }
+	#pjWrapper .pjSbs-footer-sticky .btn-primary { display: block; width: 100%; }
 }

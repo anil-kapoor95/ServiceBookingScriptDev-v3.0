@@ -15,6 +15,8 @@ if (pjObject::getPlugin('pjOneAdmin') !== NULL && $controller->isAdmin())
 		{
 			?>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminServices&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminServices' ? 'menu-focus' : NULL; ?>"><span class="menu-services">&nbsp;</span><?php __('menuServices'); ?></a></li>
+			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminCategories&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminCategories' ? 'menu-focus' : NULL; ?>"><span class="menu-categories">&nbsp;</span><?php __('menuCategories'); ?></a></li>
+			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminExtras&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminExtras' ? 'menu-focus' : NULL; ?>"><span class="menu-extras">&nbsp;</span><?php __('menuExtras'); ?></a></li>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminTime&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminTime' ? 'menu-focus' : NULL; ?>"><span class="menu-time">&nbsp;</span><?php __('menuTime'); ?></a></li>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminOptions&amp;action=pjActionIndex" class="<?php echo ($_GET['controller'] == 'pjAdminOptions' && in_array($_GET['action'], array('pjActionIndex', 'pjActionBooking', 'pjActionNotification', 'pjActionEmailSettings', 'pjActionBookingForm', 'pjActionTerm'))) || in_array($_GET['controller'], array('pjAdminDates', 'pjAdminLocales', 'pjBackup', 'pjLocale', 'pjSms')) ? 'menu-focus' : NULL; ?>"><span class="menu-options">&nbsp;</span><?php __('menuOptions'); ?></a></li>
 			<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdminUsers&amp;action=pjActionIndex" class="<?php echo $_GET['controller'] == 'pjAdminUsers' ? 'menu-focus' : NULL; ?>"><span class="menu-users">&nbsp;</span><?php __('menuUsers'); ?></a></li>
@@ -27,7 +29,7 @@ if (pjObject::getPlugin('pjOneAdmin') !== NULL && $controller->isAdmin())
 		}
 		?>
 		<li><a href="<?php echo $_SERVER['PHP_SELF']; ?>?controller=pjAdmin&amp;action=pjActionLogout"><span class="menu-logout">&nbsp;</span><?php __('menuLogout'); ?></a></li>
-		<li class="pj-request-customization-item"><a href="https://www.phpjabbers.com/contact.php" target="_blank" rel="nofollow" class="pj-request-customization"><span class="menu-customization">&nbsp;</span><?php __('menuRequestCustomization'); ?></a></li>
+		<li class="pj-request-customization-item"><a href="https://www.phpjabbers.com/clients-area/customization.php?product=service-booking-script" target="_blank" rel="nofollow" class="pj-request-customization"><span class="menu-customization">&nbsp;</span>Request customization</a></li>
 	</ul>
 </div>
 <div class="leftmenu-bottom"></div>

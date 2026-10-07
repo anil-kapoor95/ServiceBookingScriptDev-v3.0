@@ -32,8 +32,66 @@ class pjFrontPublic extends pjFront
 				->orderBy("$column $direction")
 				->findAll()
 				->getData();
-				
+
+			// categories that still have at least one active service (front-end filter)
+			$category_arr = pjServiceCategoryModel::factory()
+				->select("t1.id, t2.content AS title")
+				->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjServiceCategory' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
+				->where('t1.status', 'T')
+				->where("(t1.id IN (SELECT `TS`.category_id FROM `".pjServiceModel::factory()->getTable()."` AS `TS` WHERE `TS`.status = 'T'))")
+				->orderBy("title ASC")
+				->findAll()
+				->getData();
+
+			// extras are chosen on their own step; only tell the view whether the selected services have any
+			$extra_arr = $this->getSelectedExtras();
+
 			$this->set('arr', $arr);
+			$this->set('category_arr', $category_arr);
+			$this->set('extra_arr', $extra_arr);
+		}
+	}
+	/**
+	 * Active extras offered with the services currently selected in the session.
+	 */
+	private function getSelectedExtras()
+	{
+		$extra_arr = array();
+		if (isset($_SESSION[$this->defaultStore]['service_id']) && count($_SESSION[$this->defaultStore]['service_id']) > 0)
+		{
+			$extra_arr = pjExtraModel::factory()
+				->select("t1.*, t2.content AS title, t3.content AS description")
+				->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjExtra' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
+				->join('pjMultiLang', "t3.foreign_id = t1.id AND t3.model = 'pjExtra' AND t3.locale = '".$this->getLocaleId()."' AND t3.field = 'description'", 'left')
+				->where('t1.status', 'T')
+				->where("(t1.id IN (SELECT `TSE`.extra_id FROM `".pjServiceExtraModel::factory()->getTable()."` AS `TSE` WHERE `TSE`.service_id IN (".join(',', array_map('intval', array_keys($_SESSION[$this->defaultStore]['service_id'])))."))) ")
+				->orderBy("title ASC")
+				->findAll()
+				->getData();
+		}
+		return $extra_arr;
+	}
+	/**
+	 * Extras step: the extras that belong to the selected services.
+	 */
+	public function pjActionExtras()
+	{
+		if($this->isXHR())
+		{
+			if (isset($_SESSION[$this->defaultStore]['service_id']) && count($_SESSION[$this->defaultStore]['service_id']) > 0)
+			{
+				$service_arr = pjServiceModel::factory()
+					->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjService' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
+					->select("t1.*, t2.content AS title")
+					->where('t1.status', 'T')
+					->whereIn('t1.id', array_map('intval', array_keys($_SESSION[$this->defaultStore]['service_id'])))
+					->findAll()
+					->getData();
+				$this->set('service_arr', $service_arr);
+				$this->set('extra_arr', $this->getSelectedExtras());
+			}else{
+				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 100, 'text' => ''));
+			}
 		}
 	}
 	public function pjActionDateTime()
@@ -82,6 +140,7 @@ class pjFrontPublic extends pjFront
 				$this->set('week_arr', $week_arr);
 				$this->set('wt_arr', $wt_arr);
 				$this->set('booking_arr', $booking_arr);
+				$this->set('has_extras', count($this->getSelectedExtras()) > 0);
 			}else{
 				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 100, 'text' => ''));
 				exit;
@@ -120,7 +179,20 @@ class pjFrontPublic extends pjFront
 						->findAll()
 						->getData();
 					
-					$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr);
+					$extra_id_arr = isset($_SESSION[$this->defaultStore]['extra_id']) ? array_keys($_SESSION[$this->defaultStore]['extra_id']) : array();
+					$extra_arr = array();
+					if (!empty($extra_id_arr))
+					{
+						$extra_arr = pjExtraModel::factory()
+							->select("t1.*, t2.content AS title")
+							->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjExtra' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
+							->whereIn('t1.id', $extra_id_arr)
+							->orderBy("title ASC")
+							->findAll()
+							->getData();
+					}
+					$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr, $extra_id_arr);
+					$this->set('extra_arr', $extra_arr);
 					
 					$country_arr = pjCountryModel::factory()
 						->select('t1.id, t2.content AS country_title')
@@ -172,7 +244,20 @@ class pjFrontPublic extends pjFront
 					->findAll()
 					->getData();
 
-				$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr);
+				$extra_id_arr = isset($_SESSION[$this->defaultStore]['extra_id']) ? array_keys($_SESSION[$this->defaultStore]['extra_id']) : array();
+				$extra_arr = array();
+				if (!empty($extra_id_arr))
+				{
+					$extra_arr = pjExtraModel::factory()
+						->select("t1.*, t2.content AS title")
+						->join('pjMultiLang', "t2.foreign_id = t1.id AND t2.model = 'pjExtra' AND t2.locale = '".$this->getLocaleId()."' AND t2.field = 'title'", 'left')
+						->whereIn('t1.id', $extra_id_arr)
+						->orderBy("title ASC")
+						->findAll()
+						->getData();
+				}
+				$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr, $extra_id_arr);
+				$this->set('extra_arr', $extra_arr);
 					
 				if(isset($_SESSION[$this->defaultForm]['c_country']) && (int) $_SESSION[$this->defaultForm]['c_country'] > 0)
 				{
