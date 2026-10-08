@@ -231,7 +231,8 @@ class pjAdminCategories extends pjAdmin
 	}
 
 	/**
-	 * Bulk delete skips categories that still have services.
+	 * Bulk delete: categories without services are deleted, categories that still have services are kept
+	 * and reported back (code 101 + their names) so the grid can show the same "in use" message.
 	 */
 	public function pjActionDeleteCategoryBulk()
 	{
@@ -239,18 +240,43 @@ class pjAdminCategories extends pjAdmin
 
 		if ($this->isXHR())
 		{
+			$response = array('code' => 200, 'deleted' => 0, 'blocked' => 0, 'names' => array());
 			if (isset($_POST['record']) && is_array($_POST['record']) && count($_POST['record']) > 0)
 			{
 				foreach ($_POST['record'] as $id)
 				{
 					$id = (int) $id;
-					if ($id > 0 && (int) pjServiceModel::factory()->where('category_id', $id)->findCount()->getData() === 0)
+					if ($id <= 0)
+					{
+						continue;
+					}
+					if ((int) pjServiceModel::factory()->where('category_id', $id)->findCount()->getData() === 0)
 					{
 						pjServiceCategoryModel::factory()->where('id', $id)->limit(1)->eraseAll();
 						pjMultiLangModel::factory()->where('model', 'pjServiceCategory')->where('foreign_id', $id)->eraseAll();
+						$response['deleted']++;
+					} else {
+						$response['blocked']++;
+						$row = pjMultiLangModel::factory()
+							->where('model', 'pjServiceCategory')
+							->where('foreign_id', $id)
+							->where('field', 'title')
+							->where('locale', $this->getLocaleId())
+							->limit(1)
+							->findAll()
+							->getData();
+						if (count($row) > 0 && $row[0]['content'] !== '')
+						{
+							$response['names'][] = $row[0]['content'];
+						}
 					}
 				}
+				if ($response['blocked'] > 0)
+				{
+					$response['code'] = 101;
+				}
 			}
+			pjAppController::jsonResponse($response);
 		}
 		exit;
 	}

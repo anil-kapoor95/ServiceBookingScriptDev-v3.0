@@ -134,27 +134,45 @@ function pjTrimOnBlur($forms) {
 					name: "record[]"
 				}
 			});
-			/* a category that still has services is refused by the server (code 101) */
-			$(document).ajaxComplete(function (e, xhr, opts) {
-				if (opts && opts.url && opts.url.indexOf("pjActionDeleteCategory&") > -1 && xhr.responseText && xhr.responseText.indexOf('"code":101') > -1) {
-					$(".ui-dialog-content:visible").dialog("close");
-					// popup (same look as the delete confirmation) instead of a browser alert
-					var $inUse = $("#pjCatalogInUseDialog"), btns = {};
-					if ($inUse.length === 0) {
-						$inUse = $('<div id="pjCatalogInUseDialog"><p></p></div>').appendTo("body");
+			/* a category that still has services is refused by the server (code 101), single and bulk delete alike */
+			var showInUse = function (names) {
+				$(".ui-dialog-content:visible").dialog("close");
+				// popup (same look as the delete confirmation) instead of a browser alert
+				var $inUse = $("#pjCatalogInUseDialog"), btns = {}, i, $ul;
+				if ($inUse.length === 0) {
+					$inUse = $('<div id="pjCatalogInUseDialog"><p></p></div>').appendTo("body");
+				}
+				$inUse.find("ul").remove();
+				$inUse.find("p").text(myLabel.category_in_use);
+				if (names && names.length > 0) {
+					$ul = $("<ul></ul>").css({margin: "8px 0 0 18px", padding: 0});
+					for (i = 0; i < names.length; i++) {
+						$("<li></li>").text(names[i]).appendTo($ul);
 					}
-					$inUse.find("p").text(myLabel.category_in_use);
-					btns[myLabel.ok || "OK"] = function () { $(this).dialog("close"); };
-					$inUse.dialog({
-						autoOpen: true,
-						modal: true,
-						resizable: false,
-						draggable: false,
-						width: 420,
-						title: myLabel.cannot_delete || "",
-						buttons: btns,
-						close: function () { $(this).dialog("destroy"); }
-					});
+					$inUse.append($ul);
+				}
+				btns[myLabel.ok || "OK"] = function () { $(this).dialog("close"); };
+				$inUse.dialog({
+					autoOpen: true,
+					modal: true,
+					resizable: false,
+					draggable: false,
+					width: 420,
+					title: myLabel.cannot_delete || "",
+					buttons: btns,
+					close: function () { $(this).dialog("destroy"); }
+				});
+			};
+			$(document).ajaxComplete(function (e, xhr, opts) {
+				if (!opts || !opts.url || !xhr.responseText || xhr.responseText.indexOf('"code":101') < 0) {
+					return;
+				}
+				if (opts.url.indexOf("pjActionDeleteCategory&") > -1) {
+					showInUse(null);
+				} else if (opts.url.indexOf("pjActionDeleteCategoryBulk") > -1) {
+					var res = null;
+					try { res = $.parseJSON(xhr.responseText); } catch (err) { res = null; }
+					showInUse(res && res.names ? res.names : null);
 				}
 			});
 			var reload = function (obj) {

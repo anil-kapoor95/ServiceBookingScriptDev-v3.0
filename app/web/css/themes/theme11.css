@@ -23,7 +23,7 @@
 
 #pjWrapper .pjSbs-services-title { color: #4a2a22; font-weight: 600; font-size: 26px; }
 
-#pjWrapper .pjSbs-services-body { background-color: transparent; max-height: none; }
+#pjWrapper .pjSbs-services-body { background-color: transparent; max-height: none; overflow: visible; }
 
 #pjWrapper .btn-primary,
 #pjWrapper .pjSbsBtnStartOver.btn-default { background-color: #c94e33; border-color: #c94e33; border-radius: 26px; font-weight: 600; box-shadow: 0 6px 16px rgba(201, 78, 51, 0.4); }
@@ -258,7 +258,8 @@
 #pjWrapper .pjSbs11-success .pjSbs-services-head { background-color: transparent; }
 #pjWrapper .pjSbs11-success .pjSbs-services-title,
 #pjWrapper .pjSbs11-success .pjSbsb-services-thanks p { color: #5c4632; }
-#pjWrapper .pjSbs11-success .pjSbsb-services-thanks { position: relative; padding-top: 60px; z-index: 2; }
+#pjWrapper .pjSbs11-success .pjSbs-services-body { overflow: visible; max-height: none; }
+#pjWrapper .pjSbs11-success .pjSbsb-services-thanks { position: relative; padding-top: 60px; z-index: 2; height: auto; min-height: 200px; }
 #pjWrapper .pjSbs11-success .pjSbsb-services-thanks:before {
 	content: "";
 	position: absolute; top: -30px; left: 50%; width: 260px; height: 260px; margin-left: -130px;
