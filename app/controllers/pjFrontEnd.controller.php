@@ -382,13 +382,15 @@ class pjFrontEnd extends pjFront
 	private function getVoucherPrices()
 	{
 		$extra_id_arr = $this->_is('extra_id') ? array_keys($this->_get('extra_id')) : array();
-		$price_arr = $this->calculatePrices(array_keys($this->_get('service_id')), $this->option_arr, $extra_id_arr, $this->getAppliedVoucher(false));
+		$voucher_arr = $this->getAppliedVoucher(false);
+		$price_arr = $this->calculatePrices(array_keys($this->_get('service_id')), $this->option_arr, $extra_id_arr, $voucher_arr);
 		$out = array();
 		foreach ($price_arr as $k => $v)
 		{
 			$out[$k] = pjUtil::formatCurrencySign(number_format($v, 2), $this->option_arr['o_currency']);
 			$out[$k . '_raw'] = round($v, 2);
 		}
+		$out['voucher_label'] = $this->getVoucherLabel($voucher_arr);
 		return $out;
 	}
 	

@@ -105,7 +105,10 @@ $selected_date_ts = strtotime($selected_date_iso . ' ' . $selected_hour_iso . ':
 
 		<div class="row pjSbsSumDiscountRow" style="display: <?php echo $pjSbsDiscount > 0 ? '' : 'none'; ?>;">
 			<div class="col-xs-9">
-				<div class="pjSbs-service-title"><small><?php echo pjSanitize::html($pjSbsDiscountLabel);?></small></div><!-- /.pjSbs-service-title -->
+				<div class="pjSbs-service-title"><small><?php echo pjSanitize::html($pjSbsDiscountLabel);?><span class="pjSbsSumDiscountCode"><?php
+					$pjSbsVoucherLabel = $controller->getVoucherLabel(isset($tpl['voucher_arr']) ? $tpl['voucher_arr'] : NULL);
+					echo $pjSbsVoucherLabel !== '' ? ' (' . pjSanitize::html($pjSbsVoucherLabel) . ')' : '';
+				?></span></small></div><!-- /.pjSbs-service-title -->
 			</div><!-- /.col-sm-9 -->
 
 			<div class="col-xs-3">

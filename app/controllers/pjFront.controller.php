@@ -201,6 +201,27 @@ class pjFront extends pjAppController
 		return NULL;
 	}
 	
+	/**
+	 * Text that goes next to the "Discount" line: the voucher code, and the percentage for a percent voucher
+	 * (e.g. "SUMMER10 - 10%"). Empty when no voucher is applied.
+	 *
+	 * @param array|null $voucher_arr the row returned by getAppliedVoucher()
+	 * @return string
+	 */
+	public function getVoucherLabel($voucher_arr)
+	{
+		if (empty($voucher_arr) || !isset($voucher_arr['code']) || (string) $voucher_arr['code'] === '')
+		{
+			return '';
+		}
+		$label = (string) $voucher_arr['code'];
+		if (isset($voucher_arr['type']) && $voucher_arr['type'] == 'percent')
+		{
+			$label .= ' - ' . rtrim(rtrim(number_format((float) $voucher_arr['discount'], 2, '.', ''), '0'), '.') . '%';
+		}
+		return $label;
+	}
+	
 	protected function _get($key)
 	{
 		if ($this->_is($key))

@@ -755,6 +755,8 @@
 			var $c = this.$container;
 			$c.find(".pjSbsSumSubtotal").html(prices.subtotal);
 			$c.find(".pjSbsSumDiscount").html(prices.discount);
+			// voucher code (and % for a percent voucher) next to the "Discount" label
+			$c.find(".pjSbsSumDiscountCode").text(prices.voucher_label ? " (" + prices.voucher_label + ")" : "");
 			$c.find(".pjSbsSumTax").html(prices.tax);
 			$c.find(".pjSbsSumTotal").html(prices.total);
 			$c.find(".pjSbsSumDeposit").html(prices.deposit);
@@ -778,12 +780,15 @@
 			}
 			return params;
 		},
-		applyVoucher: function () {
+		applyVoucher: function (callback) {
 			var self = this,
 				$field = pjQ.$('#pjSbsVoucherCodeField'),
 				$msg = pjQ.$('#pjSbsVoucherMessage'),
 				params = self.voucherParams();
 			if ($field.prop('readonly')) {
+				if (typeof callback === 'function') {
+					callback(true);
+				}
 				return;
 			}
 			params.voucher_code = pjQ.$.trim($field.val());
@@ -810,6 +815,13 @@
 					}
 				}
 				self.showPrices.call(self, data.prices);
+				if (typeof callback === 'function') {
+					callback(data.status == "OK");
+				}
+			}).fail(function () {
+				if (typeof callback === 'function') {
+					callback(false);
+				}
 			});
 		},
 		removeVoucher: function () {
@@ -908,18 +920,35 @@
 					submitHandler: function (form) {
 						self.disableButtons.call(self);
 						var $form = pjQ.$(form);
-						pjQ.$.post([self.opts.folder, "index.php?controller=pjFrontPublic&action=pjActionCheckout"].join(""), $form.serialize()).done(function (data) {
-							if (data.status == "OK") {
-								if (!hashBang("#!/loadPreview")) 
-								{
-									self.loadPreview.call(self);
+						var goToPreview = function () {
+							pjQ.$.post([self.opts.folder, "index.php?controller=pjFrontPublic&action=pjActionCheckout"].join(""), $form.serialize()).done(function (data) {
+								if (data.status == "OK") {
+									if (!hashBang("#!/loadPreview")) 
+									{
+										self.loadPreview.call(self);
+									}
+								} else {
+									self.enableButtons.call(self);
 								}
-							} else {
+							}).fail(function () {
 								self.enableButtons.call(self);
-							}
-						}).fail(function () {
-							self.enableButtons.call(self);
-						});
+							});
+						};
+						// a voucher code that was typed but not applied yet is applied now, so the discount is not lost
+						var $voucher = pjQ.$('#pjSbsVoucherCodeField');
+						if ($voucher.length && !$voucher.prop('readonly') && pjQ.$.trim($voucher.val()) !== '') {
+							self.applyVoucher.call(self, function (ok) {
+								if (ok) {
+									goToPreview();
+								} else {
+									// invalid code: its message is shown, the visitor can correct or clear the field
+									self.enableButtons.call(self);
+									$voucher.trigger('focus');
+								}
+							});
+							return false;
+						}
+						goToPreview();
 						return false;
 					}
 				});
