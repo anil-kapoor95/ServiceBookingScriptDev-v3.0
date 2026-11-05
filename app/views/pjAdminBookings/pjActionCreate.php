@@ -145,10 +145,27 @@ if (isset($tpl['status']))
 						<div class="float_left w40p overflow">
 							
 							<p>
+								<label class="title"><?php __('lblBookingVoucherCode'); ?></label>
+								<span class="inline-block">
+									<input type="text" id="voucher_code" name="voucher_code" maxlength="255" autocomplete="off" class="pj-form-field w150" value=""/>
+									<em id="voucherCodeMsg" style="display: none;"><label class="err"><?php __('lblBookingVoucherInvalid'); ?></label></em>
+									<em id="voucherCodeService" style="display: none;"><label class="err"><?php __('lblBookingVoucherService'); ?></label></em>
+									<em id="voucherCodeNeed" style="display: none;"><label class="err"><?php __('lblBookingVoucherNeedData'); ?></label></em>
+									<em id="voucherCodeCapped" style="display: none;"><label><?php __('lblBookingVoucherCapped'); ?></label></em>
+								</span>
+							</p>
+							<p>
 								<label class="title"><?php __('lblSubTotal'); ?></label>
 								<span class="pj-form-field-custom pj-form-field-custom-before">
 									<span class="pj-form-field-before"><abbr class="pj-form-field-icon-text"><?php echo pjUtil::formatCurrencySign(NULL, $tpl['option_arr']['o_currency'], ""); ?></abbr></span>
 									<input type="text" id="subtotal" name="subtotal" class="pj-form-field number w80" readonly="readonly"/>
+								</span>
+							</p>
+							<p>
+								<label class="title"><?php __('lblBookingDiscount'); ?></label>
+								<span class="pj-form-field-custom pj-form-field-custom-before">
+									<span class="pj-form-field-before"><abbr class="pj-form-field-icon-text"><?php echo pjUtil::formatCurrencySign(NULL, $tpl['option_arr']['o_currency'], ""); ?></abbr></span>
+									<input type="text" id="discount" name="discount" class="pj-form-field number w80" readonly="readonly"/>
 								</span>
 							</p>
 							<p>

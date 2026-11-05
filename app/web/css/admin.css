@@ -342,6 +342,7 @@ span.left{
 .menu-logout{background: url(../img/backend/menu-logout.png) 0 -30px no-repeat}
 .menu-categories{background: url(../img/backend/menu-categories.png) 0 -30px no-repeat}
 .menu-extras{background: url(../img/backend/menu-extras.png) 0 -30px no-repeat}
+.menu-vouchers{background: url(../img/backend/menu-vouchers.png) 0 -30px no-repeat}
 
 .menu-focus .menu-dashboard, .menu a:hover .menu-dashboard,
 .menu-focus .menu-bookings, .menu a:hover .menu-bookings,
@@ -353,6 +354,7 @@ span.left{
 .menu-focus .menu-install, .menu a:hover .menu-install,
 .menu-focus .menu-categories, .menu a:hover .menu-categories,
 .menu-focus .menu-extras, .menu a:hover .menu-extras,
+.menu-focus .menu-vouchers, .menu a:hover .menu-vouchers,
 .menu-focus .menu-logout, .menu a:hover .menu-logout{
 	background-position: 0 0;
 }
@@ -1076,3 +1078,6 @@ label.ui-state-active{
 .pj-table td:last-child a.pj-table-icon-edit,
 .pj-table td:last-child a.pj-table-icon-delete,
 .pj-table td:last-child a.pj-table-icon-copy { vertical-align: middle; }
+
+/* Vouchers: list of services (greyed out while the voucher is valid for all services) */
+#voucherServicesBox.voucher-services-off .voucher-services-toggle{background:#f3f3f3 !important;color:#999 !important;cursor:default;}

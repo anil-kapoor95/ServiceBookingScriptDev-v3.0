@@ -459,6 +459,8 @@ class pjAppController extends pjController
 		$tax = pjUtil::formatCurrencySign($data['tax'], $option_arr['o_currency']);
 		$deposit = pjUtil::formatCurrencySign($data['deposit'], $option_arr['o_currency']);
 		$total = pjUtil::formatCurrencySign($data['total'], $option_arr['o_currency']);
+		$discount = pjUtil::formatCurrencySign(isset($data['discount']) ? $data['discount'] : 0, $option_arr['o_currency']);
+		$voucher_code = isset($data['voucher_code']) ? $data['voucher_code'] : NULL;
 	
 		$cancelURL = PJ_INSTALL_URL . 'index.php?controller=pjFrontEnd&action=pjActionCancel&id='.@$data['id'].'&hash='.sha1(@$data['id'].@$data['created'].$salt);
 		$cancelURL = '<a href="'.$cancelURL.'">' . $cancelURL . '</a>';
@@ -488,6 +490,8 @@ class pjAppController extends pjController
 				'{Total}',
 				'{Tax}',
 				'{Deposit}',
+				'{VoucherCode}',
+				'{Discount}',
 				'{PaymentMethod}',
 				'{CCType}',
 				'{CCNum}',
@@ -514,6 +518,8 @@ class pjAppController extends pjController
 				$total,
 				$tax,
 				$deposit,
+				$voucher_code,
+				$discount,
 				$payment_method,
 				@$data['cc_type'],
 				@$data['cc_num'],
@@ -524,9 +530,108 @@ class pjAppController extends pjController
 		return compact('search', 'replace');
 	}
 	
-	public function calculatePrices($service_id_arr, $option_arr, $extra_id_arr = array())
+	/**
+	 * Discount of a voucher on an amount: a percent voucher takes that % of the amount, an amount voucher
+	 * takes that fixed sum; the discount can never be bigger than the amount itself.
+	 *
+	 * @param float $subtotal services + extras, before the discount
+	 * @param array|null $voucher_arr a row of the vouchers table (valid for the booking date and time) or NULL
+	 * @return float
+	 */
+	public static function getVoucherDiscount($subtotal, $voucher_arr)
+	{
+		if (empty($voucher_arr) || !isset($voucher_arr['discount']) || (float) $subtotal <= 0)
+		{
+			return 0;
+		}
+		$discount = (float) $voucher_arr['discount'];
+		if ($voucher_arr['type'] == 'percent')
+		{
+			$discount = (float) $subtotal * $discount / 100;
+		}
+		if ($discount > (float) $subtotal)
+		{
+			$discount = (float) $subtotal;
+		}
+		return $discount > 0 ? round($discount, 2) : 0;
+	}
+	
+	/**
+	 * The part of the booking the voucher is taken off. A voucher for all services discounts the whole subtotal
+	 * (services + extras); a voucher limited to some services discounts the price of those services only.
+	 *
+	 * @param array|null $voucher_arr row returned by pjVoucherModel::getVoucher
+	 * @param array $service_arr rows of the selected services (id, price)
+	 * @param float $subtotal services + extras
+	 * @return float
+	 */
+	public static function getVoucherBase($voucher_arr, $service_arr, $subtotal)
+	{
+		if (empty($voucher_arr) || empty($voucher_arr['service_ids']))
+		{
+			return (float) $subtotal;
+		}
+		$base = 0;
+		foreach ($service_arr as $service)
+		{
+			if (in_array((int) $service['id'], $voucher_arr['service_ids'], true))
+			{
+				$base += (float) $service['price'];
+			}
+		}
+		return $base;
+	}
+	
+	/**
+	 * Voucher part of an admin booking form (Create / Update).
+	 * The voucher code is checked again here against the date and time of the booking. When a voucher is
+	 * used (or the booking had a discount before) the discount, tax, total and deposit are worked out again from
+	 * the subtotal; otherwise the posted amounts are left untouched.
+	 *
+	 * @param array $post posted form
+	 * @param string $start_dt Y-m-d H:i:s of the booking
+	 * @param float $old_discount discount the booking had before (update)
+	 * @return array fields to merge into the booking
+	 */
+	public function getBookingVoucherData($post, $start_dt, $old_discount = 0)
+	{
+		$out = array('voucher_code' => ':NULL', 'discount' => 0);
+		$code = isset($post['voucher_code']) ? trim((string) $post['voucher_code']) : '';
+		if ($code === '' && (float) $old_discount <= 0)
+		{
+			return $out;
+		}
+		$subtotal = isset($post['subtotal']) ? (float) str_replace(',', '', $post['subtotal']) : 0;
+		$discount = 0;
+		if ($code !== '')
+		{
+			$ts = strtotime($start_dt);
+			$result = pjVoucherModel::factory()->getVoucher($code, date('Y-m-d', $ts), date('H:i:s', $ts));
+			$service_id_arr = isset($post['service_id']) && is_array($post['service_id']) ? array_keys($post['service_id']) : array();
+			if ($result['status'] == 'OK' && pjVoucherModel::appliesToServices($result['arr'], $service_id_arr))
+			{
+				$base = $subtotal;
+				if (!empty($result['arr']['service_ids']))
+				{
+					$service_arr = pjServiceModel::factory()->whereIn('t1.id', $service_id_arr)->findAll()->getData();
+					$base = self::getVoucherBase($result['arr'], $service_arr, $subtotal);
+				}
+				$out['voucher_code'] = $result['arr']['code'];
+				$discount = self::getVoucherDiscount($base, $result['arr']);
+			}
+		}
+		$out['discount'] = $discount;
+		$taxable = $subtotal - $discount;
+		$out['tax'] = round($taxable * (float) $this->option_arr['o_tax_payment'] / 100, 2);
+		$out['total'] = round($taxable + $out['tax'], 2);
+		$out['deposit'] = round($out['total'] * (float) $this->option_arr['o_deposit_payment'] / 100, 2);
+		return $out;
+	}
+	
+	public function calculatePrices($service_id_arr, $option_arr, $extra_id_arr = array(), $voucher_arr = NULL)
 	{
 		$subtotal = 0;
+		$discount = 0;
 		$tax = 0;
 		$total = 0;
 		$deposit = 0;
@@ -545,11 +650,13 @@ class pjAppController extends pjController
 				$subtotal += (float) $v['price'];
 			}
 		}
-		$tax = $subtotal * (float) $option_arr['o_tax_payment'] / 100;
-		$total = $subtotal + $tax;
+		// voucher: taken off the subtotal first, tax and deposit are worked out on what is left
+		$discount = self::getVoucherDiscount(self::getVoucherBase($voucher_arr, $arr, $subtotal), $voucher_arr);
+		$tax = ($subtotal - $discount) * (float) $option_arr['o_tax_payment'] / 100;
+		$total = $subtotal - $discount + $tax;
 		$deposit = $total * (float) $option_arr['o_deposit_payment'] / 100;
 		
-		return compact('subtotal', 'tax', 'total', 'deposit');
+		return compact('subtotal', 'discount', 'tax', 'total', 'deposit');
 	}
 	
 	public function getAdminEmail()

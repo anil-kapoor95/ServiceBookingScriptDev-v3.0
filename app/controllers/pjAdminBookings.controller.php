@@ -6,6 +6,41 @@ if (!defined("ROOT_PATH"))
 }
 class pjAdminBookings extends pjAdmin
 {
+	/**
+	 * Booking form: is the typed voucher code valid for the selected date and time?
+	 * Answers with the voucher type and value, the page works out the discount from the subtotal.
+	 */
+	public function pjActionCheckVoucher()
+	{
+		$this->setAjax(true);
+		
+		if ($this->isXHR())
+		{
+			$this->checkLogin();
+			
+			$code = isset($_GET['voucher_code']) ? trim((string) $_GET['voucher_code']) : '';
+			$date = isset($_GET['start_dt']) && $_GET['start_dt'] !== '' ? pjUtil::formatDate($_GET['start_dt'], $this->option_arr['o_date_format']) : '';
+			$hour = isset($_GET['hour_iso']) ? $_GET['hour_iso'] : '';
+			$minute = isset($_GET['minute_iso']) ? $_GET['minute_iso'] : '';
+			if ($code === '')
+			{
+				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 100));
+			}
+			if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $date) || !ctype_digit((string) $hour) || !ctype_digit((string) $minute))
+			{
+				// date or time not chosen yet: nothing to check against
+				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 102));
+			}
+			$result = pjVoucherModel::factory()->getVoucher($code, $date, sprintf('%02d:%02d:00', (int) $hour, (int) $minute));
+			if ($result['status'] == 'OK')
+			{
+				pjAppController::jsonResponse(array('status' => 'OK', 'code' => 200, 'type' => $result['arr']['type'], 'value' => (float) $result['arr']['discount'], 'service_ids' => $result['arr']['service_ids'], 'voucher_code' => $result['arr']['code']));
+			}
+			pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 101));
+		}
+		exit;
+	}
+	
 	public function pjActionDoubleCheck()
 	{
 		$this->setAjax(true);
@@ -421,6 +456,8 @@ class pjAdminBookings extends pjAdmin
 				$data['ip'] = pjUtil::getClientIp();
 				$data['start_dt'] = pjUtil::formatDate($_POST['start_dt'], $this->option_arr['o_date_format']) . ' ' . $_POST['hour_iso'] . ':' . $_POST['minute_iso'] . ':00';
 				$data['end_dt'] = date('Y-m-d H:i:s', strtotime($data['start_dt']) + (60 * $_POST['duration']));
+				// voucher: checked here again for the booking date and time; discount / tax / total / deposit follow it
+				$data = array_merge($data, $this->getBookingVoucherData($_POST, $data['start_dt']));
 				
 				$id = pjBookingModel::factory(array_merge($_POST, $data))->insert()->getInsertId();
 				if ($id !== false && (int) $id > 0)
@@ -526,6 +563,8 @@ class pjAdminBookings extends pjAdmin
 				$data['ip'] = pjUtil::getClientIp();
 				$data['start_dt'] = pjUtil::formatDate($_POST['start_dt'], $this->option_arr['o_date_format']) . ' ' . $_POST['hour_iso'] . ':' . $_POST['minute_iso'] . ':00';
 				$data['end_dt'] = date('Y-m-d H:i:s', strtotime($data['start_dt']) + (60 * $_POST['duration']));
+				// voucher: checked here again for the booking date and time; discount / tax / total / deposit follow it
+				$data = array_merge($data, $this->getBookingVoucherData($_POST, $data['start_dt'], isset($arr['discount']) ? $arr['discount'] : 0));
 				
 				$pjBookingModel->reset()->where('id', $_POST['id'])->limit(1)->modifyAll(array_merge($_POST, $data));
 				

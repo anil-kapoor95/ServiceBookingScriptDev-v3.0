@@ -191,8 +191,11 @@ class pjFrontPublic extends pjFront
 							->findAll()
 							->getData();
 					}
-					$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr, $extra_id_arr);
+					// a voucher applied earlier is checked again for the date and time that are selected now
+					$voucher_arr = $this->getAppliedVoucher();
+					$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr, $extra_id_arr, $voucher_arr);
 					$this->set('extra_arr', $extra_arr);
+					$this->set('voucher_arr', $voucher_arr);
 					
 					$country_arr = pjCountryModel::factory()
 						->select('t1.id, t2.content AS country_title')
@@ -256,8 +259,10 @@ class pjFrontPublic extends pjFront
 						->findAll()
 						->getData();
 				}
-				$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr, $extra_id_arr);
+				$voucher_arr = $this->getAppliedVoucher();
+				$price_arr = pjAppController::calculatePrices(array_keys($_SESSION[$this->defaultStore]['service_id']), $this->option_arr, $extra_id_arr, $voucher_arr);
 				$this->set('extra_arr', $extra_arr);
+				$this->set('voucher_arr', $voucher_arr);
 					
 				if(isset($_SESSION[$this->defaultForm]['c_country']) && (int) $_SESSION[$this->defaultForm]['c_country'] > 0)
 				{

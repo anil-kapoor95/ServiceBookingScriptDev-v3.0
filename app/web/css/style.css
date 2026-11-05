@@ -225,3 +225,16 @@ html, body { height: 100%; }
 	#pjWrapper .pjSbs-footer-sticky p { display: inline-block; padding-bottom: 8px; margin-right: 14px; }
 	#pjWrapper .pjSbs-footer-sticky .btn-primary { display: block; width: 100%; }
 }
+
+/*** Voucher box (checkout step) ***/
+/* the "Have a voucher code?" link is Theme 11 only; the other themes always show the box. theme11.css turns the link on. */
+#pjWrapper .pjSbs11-voucher-toggle { display: none; }
+#pjWrapper .pjSbs-voucher { margin-bottom: 10px; }
+#pjWrapper .pjSbs-voucher .pjSbs-voucher-spacer { display: block; margin-bottom: 5px; }
+#pjWrapper .pjSbs-voucher .btn-block { height: 44px; line-height: 44px; padding-top: 0; padding-bottom: 0; text-align: center; }
+#pjWrapper .pjSbs-voucher .alert { margin: 0 0 15px; padding: 10px 15px; }
+#pjWrapper .pjSbs-voucher .pjSbsLocked { background-color: #f5f5f5; cursor: not-allowed; }
+#pjWrapper .pjSbs-voucher .pjSbsInvalid { border-color: #a94442; }
+@media (max-width: 767px) {
+	#pjWrapper .pjSbs-voucher .pjSbs-voucher-spacer { display: none; }
+}

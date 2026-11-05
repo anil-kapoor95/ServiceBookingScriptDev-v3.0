@@ -17,6 +17,8 @@ class pjBookingModel extends pjAppModel
 		array('name' => 'end_dt', 'type' => 'datetime', 'default' => ':NULL'),
 		array('name' => 'duration', 'type' => 'int', 'default' => ':NULL'),
 		array('name' => 'subtotal', 'type' => 'decimal', 'default' => ':NULL'),
+		array('name' => 'voucher_code', 'type' => 'varchar', 'default' => ':NULL'),
+		array('name' => 'discount', 'type' => 'decimal', 'default' => '0'),
 		array('name' => 'tax', 'type' => 'decimal', 'default' => ':NULL'),
 		array('name' => 'total', 'type' => 'decimal', 'default' => ':NULL'),
 		array('name' => 'deposit', 'type' => 'decimal', 'default' => ':NULL'),

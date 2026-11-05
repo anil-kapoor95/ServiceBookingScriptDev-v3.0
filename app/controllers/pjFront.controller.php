@@ -169,6 +169,38 @@ class pjFront extends pjAppController
 		header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 		header("Access-Control-Allow-Headers: Origin, X-Requested-With");
 	}
+	/**
+	 * The voucher the customer applied on the checkout step, checked AGAIN against the date and time that are
+	 * now selected (the customer may have gone back and picked another time). A voucher that is no longer valid
+	 * is dropped from the session. The session store is emptied when a booking is made, so a voucher never
+	 * carries over to the next booking.
+	 *
+	 * @param bool $drop_invalid forget a voucher that is not valid any more
+	 * @return array|null the voucher row, or NULL when no valid voucher is applied
+	 */
+	public function getAppliedVoucher($drop_invalid = true)
+	{
+		if (!$this->_is('voucher_code') || !$this->_is('date_iso') || !$this->_is('hour_iso') || !$this->_is('minute_iso'))
+		{
+			return NULL;
+		}
+		$result = pjVoucherModel::factory()->getVoucher(
+			$this->_get('voucher_code'),
+			$this->_get('date_iso'),
+			sprintf('%02d:%02d:00', (int) $this->_get('hour_iso'), (int) $this->_get('minute_iso'))
+		);
+		// a voucher limited to some services stops working when none of them is in the booking any more
+		if ($result['status'] == 'OK' && pjVoucherModel::appliesToServices($result['arr'], $this->_is('service_id') ? array_keys($this->_get('service_id')) : array()))
+		{
+			return $result['arr'];
+		}
+		if ($drop_invalid)
+		{
+			$this->_unset('voucher_code');
+		}
+		return NULL;
+	}
+	
 	protected function _get($key)
 	{
 		if ($this->_is($key))

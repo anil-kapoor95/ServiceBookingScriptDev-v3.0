@@ -194,6 +194,35 @@
 					self.loadCheckout.call(self);
 				}
 				return false;
+			}).on("click.sbs", ".pjSbsVoucherToggle", function (e) {
+				if (e && e.preventDefault) {
+					e.preventDefault();
+				}
+				pjQ.$(this).hide().next(".pjSbs-voucher").removeClass("pjSbs-voucher-collapsed").find("#pjSbsVoucherCodeField").trigger("focus");
+				return false;
+			}).on("click.sbs", ".pjSbsApplyCode", function (e) {
+				if (e && e.preventDefault) {
+					e.preventDefault();
+				}
+				self.applyVoucher.call(self);
+				return false;
+			}).on("click.sbs", ".pjSbsRemoveCode", function (e) {
+				if (e && e.preventDefault) {
+					e.preventDefault();
+				}
+				self.removeVoucher.call(self);
+				return false;
+			}).on("keydown.sbs", "#pjSbsVoucherCodeField", function (e) {
+				// Enter applies the code (it must not submit the whole checkout form)
+				if (e.which === 13) {
+					e.preventDefault();
+					if (!pjQ.$(this).prop("readonly")) {
+						self.applyVoucher.call(self);
+					}
+					return false;
+				}
+			}).on("input.sbs", "#pjSbsVoucherCodeField", function () {
+				pjQ.$(this).removeClass("pjSbsInvalid");
 			}).on("click.sbs", ".pjSbsSetTime", function (e) {
 				if (e && e.preventDefault) {
 					e.preventDefault();
@@ -716,6 +745,88 @@
 				var height = $periodWrapper.parent().height();
 				var span_height = parseInt(height/2, 10) - 2;
 				$periodWrapper.find('span').css('line-height', span_height + 'px');
+			});
+		},
+		/* shows the amounts the server answered with in the summary (and in the hidden fields of the form) */
+		showPrices: function (prices) {
+			if (!prices) {
+				return;
+			}
+			var $c = this.$container;
+			$c.find(".pjSbsSumSubtotal").html(prices.subtotal);
+			$c.find(".pjSbsSumDiscount").html(prices.discount);
+			$c.find(".pjSbsSumTax").html(prices.tax);
+			$c.find(".pjSbsSumTotal").html(prices.total);
+			$c.find(".pjSbsSumDeposit").html(prices.deposit);
+			// the discount line is only there while a voucher really takes something off
+			if (parseFloat(prices.discount_raw) > 0) {
+				$c.find(".pjSbsSumDiscountRow").show();
+			} else {
+				$c.find(".pjSbsSumDiscountRow").hide();
+			}
+			$c.find(".pjSbsHidSubtotal").val(prices.subtotal_raw);
+			$c.find(".pjSbsHidTax").val(prices.tax_raw);
+			$c.find(".pjSbsHidTotal").val(prices.total_raw);
+			$c.find(".pjSbsHidDeposit").val(prices.deposit_raw);
+		},
+		voucherParams: function () {
+			var params = {};
+			params.locale = this.opts.locale;
+			params.index = this.opts.index;
+			if (this.opts.session_id != '') {
+				params.session_id = this.opts.session_id;
+			}
+			return params;
+		},
+		applyVoucher: function () {
+			var self = this,
+				$field = pjQ.$('#pjSbsVoucherCodeField'),
+				$msg = pjQ.$('#pjSbsVoucherMessage'),
+				params = self.voucherParams();
+			if ($field.prop('readonly')) {
+				return;
+			}
+			params.voucher_code = pjQ.$.trim($field.val());
+			$field.removeClass('pjSbsInvalid');
+			// an empty code is sent too: the server answers with its own (editable) "voucher code is missing" message
+			pjQ.$.get([self.opts.folder, "index.php?controller=pjFrontEnd&action=pjActionApplyCode"].join(""), params).done(function (data) {
+				$msg.removeClass('alert-danger alert-info');
+				if (data.status == "OK") {
+					$msg.html(data.text).addClass('alert-info').show();
+					$field.val(data.voucher_code != undefined ? data.voucher_code : params.voucher_code).prop('readonly', true).addClass('pjSbsLocked');
+					pjQ.$('.pjSbsApplyCode').hide();
+					pjQ.$('.pjSbsRemoveCode').show();
+				} else if (data.code == 109) {
+					// the booking session is gone: start again from the services
+					if (!hashBang("#!/loadServices")) {
+						self.loadServices.call(self);
+					}
+					return;
+				} else {
+					$msg.text(data.text).addClass('alert-danger').show();
+					$field.addClass('pjSbsInvalid');
+					if (params.voucher_code == '') {
+						$field.trigger('focus');
+					}
+				}
+				self.showPrices.call(self, data.prices);
+			});
+		},
+		removeVoucher: function () {
+			var self = this,
+				params = self.voucherParams();
+			pjQ.$.get([self.opts.folder, "index.php?controller=pjFrontEnd&action=pjActionRemoveCode"].join(""), params).done(function (data) {
+				if (data.status != "OK") {
+					if (data.code == 109 && !hashBang("#!/loadServices")) {
+						self.loadServices.call(self);
+					}
+					return;
+				}
+				pjQ.$('#pjSbsVoucherCodeField').val("").prop('readonly', false).removeClass('pjSbsLocked pjSbsInvalid');
+				pjQ.$('#pjSbsVoucherMessage').html("").removeClass('alert-danger alert-info').hide();
+				pjQ.$('.pjSbsApplyCode').show();
+				pjQ.$('.pjSbsRemoveCode').hide();
+				self.showPrices.call(self, data.prices);
 			});
 		},
 		loadCheckout: function () {

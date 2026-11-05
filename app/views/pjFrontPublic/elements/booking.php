@@ -87,6 +87,11 @@ $selected_date_ts = strtotime($selected_date_iso . ' ' . $selected_hour_iso . ':
 	}
 	?>
 
+	<?php
+	$pjSbsDiscount = isset($tpl['price_arr']['discount']) ? (float) $tpl['price_arr']['discount'] : 0;
+	$pjSbsDiscountLabel = __('front_discount', true);
+	if (!is_string($pjSbsDiscountLabel) || $pjSbsDiscountLabel === '' || $pjSbsDiscountLabel === 'front_discount') { $pjSbsDiscountLabel = 'Discount'; }
+	?>
 	<div class="pjSbs-services-prices-row pjSbs-services-prices-total">
 		<div class="row">
 			<div class="col-xs-9">
@@ -94,7 +99,17 @@ $selected_date_ts = strtotime($selected_date_iso . ' ' . $selected_hour_iso . ':
 			</div><!-- /.col-sm-9 -->
 
 			<div class="col-xs-3">
-				<strong class="pjSbs-price"><small><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['subtotal'], 2), $option_arr['o_currency']);?></small></strong>
+				<strong class="pjSbs-price"><small class="pjSbsSumSubtotal"><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['subtotal'], 2), $option_arr['o_currency']);?></small></strong>
+			</div><!-- /.col-sm-3 -->
+		</div><!-- /.row -->
+
+		<div class="row pjSbsSumDiscountRow" style="display: <?php echo $pjSbsDiscount > 0 ? '' : 'none'; ?>;">
+			<div class="col-xs-9">
+				<div class="pjSbs-service-title"><small><?php echo pjSanitize::html($pjSbsDiscountLabel);?></small></div><!-- /.pjSbs-service-title -->
+			</div><!-- /.col-sm-9 -->
+
+			<div class="col-xs-3">
+				<strong class="pjSbs-price"><small class="pjSbsSumDiscount"><?php echo pjUtil::formatCurrencySign(number_format($pjSbsDiscount, 2), $option_arr['o_currency']);?></small></strong>
 			</div><!-- /.col-sm-3 -->
 		</div><!-- /.row -->
 
@@ -104,7 +119,7 @@ $selected_date_ts = strtotime($selected_date_iso . ' ' . $selected_hour_iso . ':
 			</div><!-- /.col-sm-9 -->
 
 			<div class="col-xs-3">
-				<strong class="pjSbs-price"><small><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['tax'], 2), $option_arr['o_currency']);?></small></strong>
+				<strong class="pjSbs-price"><small class="pjSbsSumTax"><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['tax'], 2), $option_arr['o_currency']);?></small></strong>
 			</div><!-- /.col-sm-3 -->
 		</div><!-- /.row -->
 
@@ -114,7 +129,7 @@ $selected_date_ts = strtotime($selected_date_iso . ' ' . $selected_hour_iso . ':
 			</div><!-- /.col-sm-9 -->
 
 			<div class="col-xs-3">
-				<strong class="pjSbs-price"><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['total'], 2), $option_arr['o_currency']);?></strong>
+				<strong class="pjSbs-price pjSbsSumTotal"><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['total'], 2), $option_arr['o_currency']);?></strong>
 			</div><!-- /.col-sm-3 -->
 		</div><!-- /.row -->
 		<div class="row">
@@ -123,7 +138,7 @@ $selected_date_ts = strtotime($selected_date_iso . ' ' . $selected_hour_iso . ':
 			</div><!-- /.col-sm-9 -->
 
 			<div class="col-xs-3">
-				<strong class="pjSbs-price"><small><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['deposit'], 2), $option_arr['o_currency']);?></small></strong>
+				<strong class="pjSbs-price"><small class="pjSbsSumDeposit"><?php echo pjUtil::formatCurrencySign(number_format($tpl['price_arr']['deposit'], 2), $option_arr['o_currency']);?></small></strong>
 			</div><!-- /.col-sm-3 -->
 		</div><!-- /.row -->
 	</div><!-- /.pjSbs-services-prices-row -->

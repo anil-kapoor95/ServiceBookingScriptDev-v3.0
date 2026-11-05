@@ -13,13 +13,15 @@ include_once dirname(__FILE__) . '/elements/steps.php';
 		<div class="pjSbs-services-form">
 			<?php include_once dirname(__FILE__) . '/elements/booking.php';?>
 
+			<?php include_once dirname(__FILE__) . '/elements/voucher.php';?>
+
 			<div class="pjSbs-services-form-title"><?php __('front_client_details');?></div><!-- /.pjSbs-services-form-title -->
 
 			<input type="hidden" name="sbs_checkout" value="1" />
-			<input type="hidden" name="subtotal" value="<?php echo $tpl['price_arr']['subtotal'];?>" />
-			<input type="hidden" name="tax" value="<?php echo $tpl['price_arr']['tax'];?>" />
-			<input type="hidden" name="total" value="<?php echo $tpl['price_arr']['total'];?>" />
-			<input type="hidden" name="deposit" value="<?php echo $tpl['price_arr']['deposit'];?>" />
+			<input type="hidden" name="subtotal" class="pjSbsHidSubtotal" value="<?php echo $tpl['price_arr']['subtotal'];?>" />
+			<input type="hidden" name="tax" class="pjSbsHidTax" value="<?php echo $tpl['price_arr']['tax'];?>" />
+			<input type="hidden" name="total" class="pjSbsHidTotal" value="<?php echo $tpl['price_arr']['total'];?>" />
+			<input type="hidden" name="deposit" class="pjSbsHidDeposit" value="<?php echo $tpl['price_arr']['deposit'];?>" />
 			
 			<?php
 			ob_start();

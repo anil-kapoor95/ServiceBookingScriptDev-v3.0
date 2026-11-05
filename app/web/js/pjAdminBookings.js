@@ -126,7 +126,16 @@ function pjTrimOnBlur($forms) {
 				submitHandler: function(form){
 					if($frmCreateBooking.find('select[name="hour_iso"]').val() != '' && $frmCreateBooking.find('select[name="minute_iso"]').val() != '')
 					{
-						form.submit();
+						ensureVoucher(function () {
+							if (voucherUnusable())
+							{
+								$tabs.tabs(tOpt).tabs("option", "active", 0);
+								showVoucherProblem();
+								$('#voucher_code').trigger('focus');
+								return;
+							}
+							form.submit();
+						});
 					}else{
 						$tabs.tabs(tOpt).tabs("option", "active", 0);
 						$('#pjSbsErrorCustom').parent().show();
@@ -195,7 +204,16 @@ function pjTrimOnBlur($forms) {
 							{
 								$dialogDuplicate.dialog('open');
 							}else{
-								form.submit();
+								ensureVoucher(function () {
+							if (voucherUnusable())
+							{
+								$tabs.tabs(tOpt).tabs("option", "active", 0);
+								showVoucherProblem();
+								$('#voucher_code').trigger('focus');
+								return;
+							}
+							form.submit();
+						});
 							}
 						});
 					}else{
@@ -454,9 +472,25 @@ function pjTrimOnBlur($forms) {
 			$('#cpSubmitButton').val(myLabel.btn_get_url);
 		}).on("focus", "#bookings_feed", function (e) {
 			$(this).select();
+		}).on("change", "#voucher_code", function (e) {
+			ensureVoucher(computeTotals);
+		}).on("input paste keyup", "#voucher_code", function (e) {
+			// typing or pasting a code recalculates at once (the change event only fires when the field loses focus)
+			var timer = $(this).data('voucherTimer');
+			if (timer)
+			{
+				clearTimeout(timer);
+			}
+			$(this).data('voucherTimer', setTimeout(function () {
+				ensureVoucher(computeTotals);
+			}, e.type == 'paste' ? 50 : 400));
 		}).on("change", "select[name='hour_iso']", function (e) {
 			getMinute();
 		}).on("change", "select[name='minute_iso']", function (e) {
+			if ($.trim($('#voucher_code').val()) !== '')
+			{
+				ensureVoucher(computeTotals);
+			}
 			var $frm = null
 			if ($frmCreateBooking.length > 0) 
 			{
@@ -602,6 +636,10 @@ function pjTrimOnBlur($forms) {
 			}
 			$.post("index.php?controller=pjAdminBookings&action=pjActionGetMinute", $frm.serialize()).done(function (data) {
 				$('#minuteWrapper').html(data);
+				if ($.trim($('#voucher_code').val()) !== '')
+				{
+					ensureVoucher(computeTotals);
+				}
 				if($frm.find('select[name="hour_iso"]').val() != '' && $frm.find('select[name="minute_iso"]').val() != '')
 				{
 					$('#pjSbsErrorCustom').parent().hide();
@@ -650,9 +688,149 @@ function pjTrimOnBlur($forms) {
 				tinymce.init(settings);
 			}
 		}
+		/* ---- voucher of the booking form ----
+		 * voucher    : {type, value} of the typed code when it is valid for the selected date and time, else null
+		 * voucherBad : a code is typed but it is not valid for that date / time
+		 * The server checks the code again when the booking is saved. */
+		$('#voucherCodeMsg, #voucherCodeService, #voucherCodeNeed, #voucherCodeCapped').each(function () {
+			$(this).data('msgText', $(this).children('label').text());
+		});
+		var voucher = null,
+			voucherBad = false,
+			voucherNeed = false,
+			voucherKey = '';
+		/* One message at a time under the field: not valid / nothing to check against yet / discount limited to the sub-total */
+		function showVoucherMessage(which)
+		{
+			$('#voucherCodeMsg').toggle(which == 'bad');
+			$('#voucherCodeService').toggle(which == 'service');
+			$('#voucherCodeNeed').toggle(which == 'need');
+			$('#voucherCodeCapped').toggle(which == 'capped');
+			// the form validator empties and hides every label.err on submit: put the text back whenever a message is switched on
+			$('#voucherCodeMsg, #voucherCodeService, #voucherCodeNeed, #voucherCodeCapped').each(function () {
+				$(this).children('label').text($(this).data('msgText')).show();
+			});
+		}
+		function currentBookingForm()
+		{
+			return $frmCreateBooking.length > 0 ? $frmCreateBooking : $frmUpdateBooking;
+		}
+		function voucherRequestKey()
+		{
+			var $f = currentBookingForm();
+			return [$.trim($('#voucher_code').val()), $f.find('input[name="start_dt"]').val(), $f.find('select[name="hour_iso"]').val(), $f.find('select[name="minute_iso"]').val()].join('|');
+		}
+		function ensureVoucher(done)
+		{
+			var code = $.trim($('#voucher_code').val()),
+				$f = currentBookingForm(),
+				key = voucherRequestKey();
+			if (code === '')
+			{
+				voucher = null;
+				voucherBad = false;
+				voucherNeed = false;
+				voucherKey = key;
+				showVoucherMessage('');
+				done();
+				return;
+			}
+			if (key === voucherKey)
+			{
+				done();
+				return;
+			}
+			$.get("index.php?controller=pjAdminBookings&action=pjActionCheckVoucher", {
+				voucher_code: code,
+				start_dt: $f.find('input[name="start_dt"]').val(),
+				hour_iso: $f.find('select[name="hour_iso"]').val(),
+				minute_iso: $f.find('select[name="minute_iso"]').val()
+			}).done(function (data) {
+				voucherKey = key;
+				voucher = null;
+				voucherBad = false;
+				voucherNeed = false;
+				if (data.status == 'OK')
+				{
+					voucher = {type: data.type, value: parseFloat(data.value), service_ids: $.map(data.service_ids || [], function (v) { return parseInt(v, 10); })};
+					showVoucherMessage('');
+				} else if (data.code == 101) {
+					voucherBad = true;
+					showVoucherMessage('bad');
+				} else {
+					// date or time not chosen yet: nothing to check against
+					voucherNeed = true;
+					showVoucherMessage('need');
+				}
+				done();
+			}).fail(function () {
+				voucher = null;
+				done();
+			});
+		}
+		/* ids of the ticked services */
+		function checkedServiceIds()
+		{
+			var ids = [];
+			$('.pjSbsServiceCheckbox:checked').each(function () {
+				ids.push(parseInt($(this).attr('name').replace(/\D/g, ''), 10));
+			});
+			return ids;
+		}
+		/* a voucher limited to some services needs at least one of them in the booking */
+		function voucherServiceOk()
+		{
+			if (!voucher || !voucher.service_ids || voucher.service_ids.length === 0)
+			{
+				return true;
+			}
+			var ids = checkedServiceIds();
+			for (var i = 0; i < ids.length; i++)
+			{
+				if ($.inArray(ids[i], voucher.service_ids) !== -1)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		/* price of the ticked services the voucher applies to (all of the sub-total when it is not limited to services) */
+		function voucherBase(subtotal)
+		{
+			if (!voucher || !voucher.service_ids || voucher.service_ids.length === 0)
+			{
+				return subtotal;
+			}
+			var base = 0;
+			$('.pjSbsServiceCheckbox:checked').each(function () {
+				var id = parseInt($(this).attr('name').replace(/\D/g, ''), 10);
+				if ($.inArray(id, voucher.service_ids) !== -1)
+				{
+					base += parseFloat($(this).val());
+				}
+			});
+			return base;
+		}
+		/* the typed code cannot be used for this booking: not valid for the date / time, or not for the ticked services */
+		function voucherUnusable()
+		{
+			return voucherBad || (voucher !== null && $('.pjSbsServiceCheckbox:checked').length > 0 && !voucherServiceOk());
+		}
+		function showVoucherProblem()
+		{
+			showVoucherMessage(voucherBad ? 'bad' : 'service');
+		}
 		function calculatePrice()
 		{
+			ensureVoucher(function () {
+				computeTotals();
+				getHour(1);
+			});
+		}
+		function computeTotals()
+		{
 			var subtotal = 0;
+			var discount = 0;
 			var tax = 0;
 			var total = 0;
 			var deposit = 0;
@@ -670,22 +848,47 @@ function pjTrimOnBlur($forms) {
 			{
 				var tax_percentage = parseFloat($('#tax').attr('data-tax'));
 				var deposit_percentage = parseFloat($('#deposit').attr('data-deposit'));
-				tax = (subtotal * tax_percentage) / 100;
-				total = subtotal + tax;
+				if (voucher)
+				{
+					if (!voucherServiceOk())
+					{
+						// none of the services the voucher is limited to is ticked: no discount
+						showVoucherMessage('service');
+					} else {
+						var base = voucherBase(subtotal);
+						discount = voucher.type == 'percent' ? (base * voucher.value / 100) : voucher.value;
+						if (discount > base)
+						{
+							discount = base;
+							showVoucherMessage('capped');
+						} else {
+							showVoucherMessage('');
+						}
+						discount = Math.round(discount * 100) / 100;
+					}
+				}
+				tax = ((subtotal - discount) * tax_percentage) / 100;
+				total = subtotal - discount + tax;
 				deposit = (total * deposit_percentage) / 100;
 				$('#subtotal').val(subtotal.toFixed(2));
+				$('#discount').val(discount.toFixed(2));
 				$('#tax').val(tax.toFixed(2));
 				$('#total').val(total.toFixed(2));
 				$('#deposit').val(deposit.toFixed(2));
 				$('#duration').val(duration);
 			}else{
+				if ($.trim($('#voucher_code').val()) !== '' && !voucherBad)
+				{
+					// a code is typed but there is no service selected yet
+					showVoucherMessage('need');
+				}
 				$('#subtotal').val('');
+				$('#discount').val('');
 				$('#tax').val('');
 				$('#total').val('');
 				$('#deposit').val('');
 				$('#duration').val('');
 			}
-			getHour(1);
 		}
 		function formatCurrency(price, currency, separator)
 		{

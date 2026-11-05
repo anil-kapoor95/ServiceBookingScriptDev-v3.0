@@ -376,6 +376,84 @@ class pjFrontEnd extends pjFront
 	}
 
 
+	/**
+	 * Amounts shown in the checkout summary, already formatted, for the voucher answers below.
+	 */
+	private function getVoucherPrices()
+	{
+		$extra_id_arr = $this->_is('extra_id') ? array_keys($this->_get('extra_id')) : array();
+		$price_arr = $this->calculatePrices(array_keys($this->_get('service_id')), $this->option_arr, $extra_id_arr, $this->getAppliedVoucher(false));
+		$out = array();
+		foreach ($price_arr as $k => $v)
+		{
+			$out[$k] = pjUtil::formatCurrencySign(number_format($v, 2), $this->option_arr['o_currency']);
+			$out[$k . '_raw'] = round($v, 2);
+		}
+		return $out;
+	}
+	
+	private function getVoucherMessage($code)
+	{
+		$msg = __('apply_voucher_msg', true);
+		$default = array(100 => 'Voucher code is missing.', 101 => 'Voucher code is not valid.', 103 => 'This voucher is not valid for the selected service(s).', 200 => 'Voucher code is applied.');
+		return is_array($msg) && !empty($msg[$code]) ? $msg[$code] : $default[$code];
+	}
+	
+	/**
+	 * Checkout: "Apply" on the voucher box. The code is checked against the date and time of the booking.
+	 */
+	public function pjActionApplyCode()
+	{
+		$this->setAjax(true);
+		
+		if ($this->isXHR())
+		{
+			if (!$this->_is('service_id') || !$this->_is('date_iso') || !$this->_is('hour_iso') || !$this->_is('minute_iso'))
+			{
+				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 109, 'text' => ''));
+			}
+			$voucher_code = isset($_GET['voucher_code']) ? trim((string) $_GET['voucher_code']) : '';
+			if ($voucher_code === '')
+			{
+				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 100, 'text' => $this->getVoucherMessage(100), 'prices' => $this->getVoucherPrices()));
+			}
+			$result = pjVoucherModel::factory()->getVoucher(
+				$voucher_code,
+				$this->_get('date_iso'),
+				sprintf('%02d:%02d:00', (int) $this->_get('hour_iso'), (int) $this->_get('minute_iso'))
+			);
+			if ($result['status'] == 'OK' && !pjVoucherModel::appliesToServices($result['arr'], array_keys($this->_get('service_id'))))
+			{
+				// the code exists and is valid for the date, but not for the services in the booking
+				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 103, 'text' => $this->getVoucherMessage(103), 'prices' => $this->getVoucherPrices()));
+			}
+			if ($result['status'] == 'OK')
+			{
+				$this->_set('voucher_code', $result['arr']['code']);
+				pjAppController::jsonResponse(array('status' => 'OK', 'code' => 200, 'text' => $this->getVoucherMessage(200), 'voucher_code' => $result['arr']['code'], 'prices' => $this->getVoucherPrices()));
+			}
+			// not found / not valid for this date and time: whatever was applied before stays as it was
+			pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 101, 'text' => $this->getVoucherMessage(101), 'prices' => $this->getVoucherPrices()));
+		}
+		exit;
+	}
+	
+	public function pjActionRemoveCode()
+	{
+		$this->setAjax(true);
+		
+		if ($this->isXHR())
+		{
+			if (!$this->_is('service_id'))
+			{
+				pjAppController::jsonResponse(array('status' => 'ERR', 'code' => 109, 'text' => ''));
+			}
+			$this->_unset('voucher_code');
+			pjAppController::jsonResponse(array('status' => 'OK', 'code' => 200, 'text' => '', 'prices' => $this->getVoucherPrices()));
+		}
+		exit;
+	}
+	
 	public function pjActionSaveBooking()
 	{
 		if ($this->isXHR())
@@ -402,6 +480,17 @@ class pjFrontEnd extends pjFront
 			$data['ip'] = pjUtil::getClientIp();
 			$data['status'] = $this->option_arr['o_booking_status'];
 			$data['created'] = date('Y-m-d H:i:s');
+			// amounts and voucher are worked out here (not taken from the posted form): the voucher is checked
+			// once more for the booking date and time, so an expired / changed voucher never discounts the booking
+			$voucher_arr = $this->getAppliedVoucher(false);
+			$extra_id_arr = isset($STORE['extra_id']) ? array_keys($STORE['extra_id']) : array();
+			$price_arr = $this->calculatePrices(array_keys($STORE['service_id']), $this->option_arr, $extra_id_arr, $voucher_arr);
+			$data['subtotal'] = round($price_arr['subtotal'], 2);
+			$data['discount'] = round($price_arr['discount'], 2);
+			$data['tax'] = round($price_arr['tax'], 2);
+			$data['total'] = round($price_arr['total'], 2);
+			$data['deposit'] = round($price_arr['deposit'], 2);
+			$data['voucher_code'] = !empty($voucher_arr) ? $voucher_arr['code'] : ':NULL';
 			$payment = ':NULL';
 			if(isset($FORM['payment_method']))
 			{
@@ -447,6 +536,12 @@ class pjFrontEnd extends pjFront
 								}
 								$arr = $pjBookingModel->reset()->find($id)->getData();
 	
+				// the booking is saved: empty the session NOW (cart, voucher, client form), before the slow part
+				// (e-mails). Whatever happens afterwards (mail timeout, page closed) the next booking starts clean
+				// and a voucher never carries over to it.
+				unset($_SESSION[$this->defaultStore]);
+				unset($_SESSION[$this->defaultForm]);
+	
 				$pdata = array();
 				$pdata['booking_id'] = $id;
 				$pdata['payment_method'] = $payment;
@@ -456,9 +551,6 @@ class pjFrontEnd extends pjFront
 				pjBookingPaymentModel::factory()->setAttributes($pdata)->insert();
 	
 				pjFrontEnd::pjActionConfirmSend($this->option_arr, $id, PJ_SALT, 'confirm');
-	
-				unset($_SESSION[$this->defaultStore]);
-				unset($_SESSION[$this->defaultForm]);
 	
 				$json = array('code' => 200, 'text' => '', 'booking_id' => $id, 'payment' => $payment);
 				pjAppController::jsonResponse($json);
