@@ -1,5 +1,3 @@
--- Vouchers: limit a voucher to selected services (or leave it for all services).
--- Run after update_2026_11_05_13_00_00.sql.
 START TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS `vouchers_services` (

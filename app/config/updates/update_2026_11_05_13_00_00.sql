@@ -1,5 +1,3 @@
--- Vouchers (discount codes) for the Service Booking script.
--- Run once. Table names are written without a prefix (same as the earlier update files).
 START TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS `vouchers` (

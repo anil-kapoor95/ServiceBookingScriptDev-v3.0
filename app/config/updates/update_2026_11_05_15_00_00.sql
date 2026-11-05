@@ -1,4 +1,3 @@
--- Voucher field of the admin booking form: two more messages (add-on to update_2026_11_05_13_00_00.sql)
 START TRANSACTION;
 
 INSERT IGNORE INTO `fields` (`id`, `key`, `type`, `label`, `source`, `modified`)
