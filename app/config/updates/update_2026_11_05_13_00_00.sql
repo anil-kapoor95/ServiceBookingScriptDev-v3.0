@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS `vouchers` (
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `bookings` ADD COLUMN `voucher_code` varchar(255) DEFAULT NULL AFTER `subtotal`;
-ALTER TABLE `bookings` ADD COLUMN `discount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00' AFTER `voucher_code`;
+-- ALTER TABLE `bookings` ADD COLUMN `voucher_code` varchar(255) DEFAULT NULL AFTER `subtotal`;
+-- ALTER TABLE `bookings` ADD COLUMN `discount` decimal(9,2) unsigned NOT NULL DEFAULT '0.00' AFTER `voucher_code`;
 
 -- Labels (editable in the admin under Options > Languages / Labels, one value per language)
 INSERT IGNORE INTO `fields` (`id`, `key`, `type`, `label`, `source`, `modified`) VALUES
@@ -135,10 +135,10 @@ UNION ALL SELECT 'voucher_valids_ARRAY_recurring', 'Recurring'
 ) t ON t.`k` = f.`key`;
 
 -- e-mail tokens {VoucherCode} and {Discount} are listed in the "available tokens" help text
-UPDATE `multi_lang` m
-INNER JOIN `fields` f ON f.`id` = m.`foreign_id` AND m.`model` = 'pjField' AND m.`field` = 'title'
-SET m.`content` = REPLACE(m.`content`, '<label>{Deposit}</label>', '<label>{Deposit}</label><label>{VoucherCode}</label><label>{Discount}</label>')
-WHERE f.`key` = 'lblAvailableTokens' AND m.`content` NOT LIKE '%{VoucherCode}%';
+UPDATE `multi_lang`
+SET `content` = REPLACE(`content`, '<label>{Deposit}</label>', '<label>{Deposit}</label><label>{VoucherCode}</label><label>{Discount}</label>')
+WHERE `model` = 'pjField' AND `field` = 'title' AND `content` NOT LIKE '%{VoucherCode}%'
+AND `foreign_id` IN (SELECT `id` FROM `fields` WHERE `key` = 'lblAvailableTokens');
 
 -- New labels are cached in the session; changing the fields index makes every session reload them.
 UPDATE `options` SET `value` = MD5(CONCAT(RAND(), UUID())) WHERE `key` = 'o_fields_index';
