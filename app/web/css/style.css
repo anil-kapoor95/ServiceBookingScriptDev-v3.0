@@ -89,6 +89,8 @@ html, body { height: 100%; }
 
 #pjWrapper .btn-primary { height: 48px; border: 0; padding: 10px 25px 0; font-size: 22px; }
 #pjWrapper input.btn-primary { padding-top: 0; }
+/* the themes colour every link in #pjWrapper (theme1: same blue as the button), which hid the white text of link-style buttons such as the voucher Apply/Remove until hover */
+#pjWrapper a.btn-primary, #pjWrapper a.btn-primary:hover, #pjWrapper a.btn-primary:focus, #pjWrapper a.btn-primary:active { color: #fff; }
 
 #pjWrapper .pjSbs-calendar-pick .owl-nav div:hover,
 #pjWrapper .pjSbs-btn-back:hover { opacity: 0.7; }
